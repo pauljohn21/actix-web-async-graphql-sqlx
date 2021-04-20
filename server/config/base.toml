@@ -1,0 +1,41 @@
+# 配置文件 默认加载 base 在 .env下指定 SERVER_ENVIRONMENT 来生效其他配置文件
+
+# 应用服务类配置
+[server]
+## 服务名称
+name = "server"
+## HttpServer 绑定地址
+host = "localhost"
+## HttpServer 绑定端口
+port = 8080
+## 路径 非必填 默认/
+context_path = "/"
+
+# graphql 配置
+[graphql]
+## graphql访问路径
+path = "/graphql"
+## graphiql UI 访问路径
+graphiql.path = "/graphiql"
+## graphiql UI 是否开启
+graphiql.enabled = true
+
+# 数据库配置
+[database]
+## 数据库用户名
+username = "server"
+## 数据库密码 非必填 默认空
+password = "server"
+## 数据地址
+host = "localhost"
+## 数据库端口
+port = 5432
+## 数据库名
+database_name = "server"
+## 是否使用ssl 非必填 默认false
+require_ssl = false
+
+# 日志配置
+[log]
+## 日志配置文件所在路径
+file = "log4rs.toml"

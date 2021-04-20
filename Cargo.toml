@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "server",
+    "app",
+]
+
+resolver = "2"
+
+[profile.dev]
+split-debuginfo = "unpacked"
