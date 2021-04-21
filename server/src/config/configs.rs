@@ -21,7 +21,7 @@ pub const SERVER_PREFIX: &str = "SERVER";
 pub const SEPARATOR: &str = "_";
 
 /// 配置项结构体
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct Configs {
     pub server: ServerConfig,
     pub graphql: GraphQLConfig,
@@ -30,7 +30,7 @@ pub struct Configs {
 }
 
 /// 服务配置
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct ServerConfig {
     pub name: String,
     pub host: String,
@@ -40,21 +40,21 @@ pub struct ServerConfig {
 }
 
 /// Graphql配置
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct GraphQLConfig {
     pub path: String,
     pub graphiql: GraphiQLConfig,
 }
 
 /// Graphiql配置
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct GraphiQLConfig {
     pub path: String,
     pub enable: Option<bool>,
 }
 
 /// 数据库配置
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct DatabaseConfig {
     pub username: String,
     pub password: Option<String>,
@@ -106,6 +106,7 @@ impl Configs {
     }
 }
 
+/// 获取配置文件路径
 fn get_config_dir() -> anyhow::Result<PathBuf> {
     let base_path = current_dir().context("无法确定当前目录")?;
 
@@ -128,7 +129,9 @@ impl LogConfig {
     /// 初始化日志配置
     pub fn init(config: &LogConfig) -> anyhow::Result<()> {
         let config_dir = get_config_dir()?;
-        log4rs::init_file(config_dir.join(&config.file), Default::default())
-            .context(format!("初始化日志配置:[{}]失败!", &config.file))
+        let result = log4rs::init_file(config_dir.join(&config.file), Default::default())
+            .context(format!("初始化日志配置:[{}]失败!", &config.file));
+        log::info!("初始化 配置文件, 日志 完成");
+        result
     }
 }

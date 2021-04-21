@@ -18,7 +18,7 @@ path = "/graphql"
 ## graphiql UI 访问路径
 graphiql.path = "/graphiql"
 ## graphiql UI 是否开启
-graphiql.enabled = true
+graphiql.enable = true
 
 # 数据库配置
 [database]
@@ -37,5 +37,5 @@ require_ssl = false
 
 # 日志配置
 [log]
-## 日志配置文件所在路径
+## 日志配置文件
 file = "log4rs.toml"
