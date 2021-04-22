@@ -9,11 +9,10 @@ use anyhow::Context;
 
 use crate::config::configs::{Configs, DatabaseConfig};
 use crate::gql::{graphiql, graphql};
-use sqlx::PgPool;
 
 pub mod config;
 pub mod gql;
-pub mod common;
+pub mod users;
 
 
 /// http server application
@@ -27,7 +26,6 @@ impl Application {
         let address = configs.server.get_address();
         // 链接数据库
         let pool = DatabaseConfig::init(&configs.database).await?;
-        // let pool = PgPool::connect("postgres://server:123456@localhost:5432/server").await?;
         // 初始化 GraphQL schema.
         let schema = gql::build_schema(pool).await;
         let enable = &configs.graphql.graphiql.enable;

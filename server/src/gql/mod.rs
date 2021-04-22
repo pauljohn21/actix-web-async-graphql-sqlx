@@ -1,29 +1,32 @@
-use async_graphql::{Schema, EmptyMutation, EmptySubscription};
-use queries::QueryRoot;
-use actix_web::{web, HttpResponse, Result};
+use actix_web::{HttpResponse, Result, web};
+use async_graphql::{EmptySubscription, Schema};
+use async_graphql::http::{GraphQLPlaygroundConfig, playground_source};
 use async_graphql_actix_web::{Request, Response};
-use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use sqlx::PgPool;
+
+use queries::QueryRoot;
+
+use crate::gql::mutations::Mutation;
 
 pub mod queries;
 pub mod mutations;
 
 /// 为了代码简洁, 定义 `ActixSchema`
-type ActixSchema = Schema<
+type ServiceSchema = Schema<
     QueryRoot,
-    EmptyMutation,
+    Mutation,
     EmptySubscription
 >;
 
-pub async fn build_schema(pool: PgPool) -> Schema<QueryRoot, EmptyMutation, EmptySubscription> {
+pub async fn build_schema(pool: PgPool) -> ServiceSchema {
     // query 和 Mutation的根对象，并使用 EmptySubscription。
     // 在架构对象中添加全局sql数据源。
-    Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+    Schema::build(QueryRoot, Mutation, EmptySubscription)
         .data(pool)
         .finish()
 }
 
-pub async fn graphql(schema: web::Data<ActixSchema>, req: Request) -> Response {
+pub async fn graphql(schema: web::Data<ServiceSchema>, req: Request) -> Response {
     schema.execute(req.into_inner()).await.into()
 }
 

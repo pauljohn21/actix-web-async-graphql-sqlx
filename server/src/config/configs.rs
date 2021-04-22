@@ -3,7 +3,7 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 use std::env::current_dir;
 use anyhow::Context;
 use std::path::PathBuf;
-use sqlx::{PgPool, Postgres, Pool};
+use sqlx::{ Postgres, Pool};
 use sqlx::postgres::{PgPoolOptions, PgConnectOptions};
 use std::time::Duration;
 
