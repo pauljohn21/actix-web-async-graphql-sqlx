@@ -13,7 +13,7 @@ name = "server"
 path = "src/main.rs"
 
 [dependencies]
-actix-web = "3.3.2"
+actix-web = "3"
 anyhow = "1.0.40"
 async-graphql = { version = "2.8.2", features = ["chrono"] }
 async-graphql-actix-web = "2.8.2"
@@ -23,4 +23,4 @@ log = "0.4.14"
 log4rs = { version = "1.0.0", features = ["toml_format"] }
 serde = "1.0.125"
 serde-aux = "2.2.0"
-sqlx = { version = "0.5.2", features = ["runtime-actix-rustls", "macros", "postgres", "uuid", "chrono", "migrate", "offline"] }
+sqlx = { version = "0.4.2", features = ["runtime-actix-native-tls","uuid","postgres","chrono"] }

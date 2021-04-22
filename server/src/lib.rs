@@ -7,8 +7,9 @@ use actix_web::dev::Server;
 use actix_web::web::ServiceConfig;
 use anyhow::Context;
 
-use crate::config::configs::Configs;
+use crate::config::configs::{Configs, DatabaseConfig};
 use crate::gql::{graphiql, graphql};
+use sqlx::PgPool;
 
 pub mod config;
 pub mod gql;
@@ -24,8 +25,11 @@ impl Application {
     /// 构建 服务器
     pub async fn build(configs: Arc<Configs>) -> anyhow::Result<Application> {
         let address = configs.server.get_address();
+        // 链接数据库
+        let pool = DatabaseConfig::init(&configs.database).await?;
+        // let pool = PgPool::connect("postgres://server:123456@localhost:5432/server").await?;
         // 初始化 GraphQL schema.
-        let schema = gql::build_schema().await;
+        let schema = gql::build_schema(pool).await;
         let enable = &configs.graphql.graphiql.enable;
         let graphiql_path = &configs.graphql.graphiql.path;
         if enable.unwrap_or(false) {
@@ -58,4 +62,6 @@ fn register_service(cfg: &mut ServiceConfig, configs: Arc<Configs>) {
     if enable.unwrap_or(false) {
         cfg.service(web::resource(&graphql_config.graphiql.path).guard(guard::Get()).to(graphiql));
     }
+
+    //TODO: 2021-04-22 00:36:25 health_check
 }
