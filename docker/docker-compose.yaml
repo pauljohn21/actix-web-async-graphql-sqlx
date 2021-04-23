@@ -6,6 +6,7 @@ services:
     container_name: local_postgresql
     restart: always
     environment:
+      TZ: PRC
       POSTGRES_DB: server
       POSTGRES_USER: server
       POSTGRES_PASSWORD: 123456

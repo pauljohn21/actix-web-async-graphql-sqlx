@@ -4,7 +4,7 @@ use async_graphql::http::{GraphQLPlaygroundConfig, playground_source};
 use async_graphql_actix_web::{Request, Response};
 use sqlx::PgPool;
 
-use queries::QueryRoot;
+use queries::Query;
 
 use crate::gql::mutations::Mutation;
 
@@ -13,7 +13,7 @@ pub mod mutations;
 
 /// 为了代码简洁, 定义 `ActixSchema`
 type ServiceSchema = Schema<
-    QueryRoot,
+    Query,
     Mutation,
     EmptySubscription
 >;
@@ -21,7 +21,7 @@ type ServiceSchema = Schema<
 pub async fn build_schema(pool: PgPool) -> ServiceSchema {
     // query 和 Mutation的根对象，并使用 EmptySubscription。
     // 在架构对象中添加全局sql数据源。
-    Schema::build(QueryRoot, Mutation, EmptySubscription)
+    Schema::build(Query, Mutation, EmptySubscription)
         .data(pool)
         .finish()
 }

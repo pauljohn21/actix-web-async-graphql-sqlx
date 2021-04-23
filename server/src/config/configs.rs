@@ -27,7 +27,7 @@ pub const SEPARATOR: &str = "_";
 #[derive(Deserialize, Clone, Debug)]
 pub struct Configs {
     pub server: ServerConfig,
-    pub graphql: GraphQLConfig,
+    pub graphql: GraphQlConfig,
     pub database: DatabaseConfig,
     pub log: LogConfig,
 }
@@ -45,14 +45,14 @@ pub struct ServerConfig {
 
 /// Graphql配置
 #[derive(Deserialize, Clone, Debug)]
-pub struct GraphQLConfig {
+pub struct GraphQlConfig {
     pub path: String,
-    pub graphiql: GraphiQLConfig,
+    pub graphiql: GraphiQlConfig,
 }
 
 /// Graphiql配置
 #[derive(Deserialize, Clone, Debug)]
-pub struct GraphiQLConfig {
+pub struct GraphiQlConfig {
     pub path: String,
     pub enable: Option<bool>,
 }

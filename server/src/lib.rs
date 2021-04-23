@@ -12,7 +12,7 @@ use crate::gql::{graphiql, graphql};
 
 pub mod config;
 pub mod gql;
-pub mod users;
+pub mod service;
 
 
 /// http server application

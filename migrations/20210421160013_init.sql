@@ -2,20 +2,21 @@
 drop table if exists users;
 create table users
 (
-    id             serial    not null primary key,
-    username       varchar   not null unique,
-    email          varchar   not null unique,
-    password_hash  varchar   not null,
-    full_name      varchar   null,
-    bio            varchar   null,
-    image          varchar   null,
-    email_verified boolean   not null default false,
-    active         boolean   not null default true,
-    created_at     TIMESTAMPTZ NOT NULL DEFAULT 'NOW'::timestamptz,
-    updated_at     TIMESTAMPTZ NOT NULL DEFAULT 'NOW'::timestamptz
+    id             UUID        not null default gen_random_uuid() primary key,
+    username       varchar     not null unique,
+    email          varchar     not null unique,
+    password_hash  varchar     not null,
+    full_name      varchar     null,
+    bio            varchar     null,
+    image          varchar     null,
+    email_verified boolean     not null default false,
+    active         boolean     not null default true,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    updated_at     TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
 );
 
 comment on table users is '用户表';
+comment on column users.id is '主键';
 comment on column users.username is '用户名';
 comment on column users.email is '邮箱';
 comment on column users.password_hash is '密码哈希值';
