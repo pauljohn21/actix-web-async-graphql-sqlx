@@ -33,7 +33,7 @@ impl Application {
         let enable = &configs.graphql.graphiql.enable;
         let graphiql_path = &configs.graphql.graphiql.path;
         if enable.unwrap_or(false) {
-            log::info!("初始化 GraphQL schema 完成! GraphQL UI: http://{}{}", address, graphiql_path);
+            log::info!(r#"初始化 "GraphQL Schema" 完成! GraphQL UI: http://{}{}"#, address, graphiql_path);
         }
 
         let server = build_actix_server(configs, address, schema)?;

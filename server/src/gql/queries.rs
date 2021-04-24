@@ -1,6 +1,7 @@
 use async_graphql::*;
 use crate::service::users::Users;
 use sqlx::PgPool;
+use crate::error::errors::AppError;
 
 /// 定义查询根节点
 #[derive(MergedObject, Default)]
@@ -12,10 +13,17 @@ pub struct UsersQuery;
 
 #[Object]
 impl UsersQuery {
+
     /// 通过用户名查询
     async fn find_by_username(&self, ctx: &Context<'_>, username: String) -> FieldResult<Option<Users>> {
         let pool = ctx.data::<PgPool>()?;
-        Ok(Users::find_by_username(pool, &username).await?)
+        Ok(Users::find_by_username(pool, &username).await.map_err(AppError::InternalError.extend_log())?)
+    }
+
+    /// 通过用户名查询
+    async fn find_by_username2(&self, ctx: &Context<'_>, username: String) -> FieldResult<Users> {
+        let pool = ctx.data::<PgPool>()?;
+        Users::find_by_username2(pool, &username).await.map_err(AppError::InternalError.extend_log())
     }
 
     /// 检查用户名是否存在

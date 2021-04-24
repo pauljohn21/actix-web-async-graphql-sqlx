@@ -3,9 +3,10 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 use std::env::current_dir;
 use anyhow::Context;
 use std::path::PathBuf;
-use sqlx::{ Postgres, Pool};
+use sqlx::{Postgres, Pool, ConnectOptions};
 use sqlx::postgres::{PgPoolOptions, PgConnectOptions};
 use std::time::Duration;
+use log::LevelFilter;
 
 /// 配置文件目录
 pub const CONFIG_PATH: &str = "config/";
@@ -122,7 +123,7 @@ impl LogConfig {
         let config_dir = get_config_dir()?;
         let result = log4rs::init_file(config_dir.join(&config.file), Default::default())
             .context(format!("初始化日志配置:[{}]失败!", &config.file));
-        log::info!("初始化 配置文件, 日志 完成");
+        log::info!(r#"初始化 "配置文件" "日志" 完成"#);
         result
     }
 }
@@ -130,12 +131,14 @@ impl LogConfig {
 impl DatabaseConfig {
     /// 初始化数据库连接池
     pub async fn init(config: &DatabaseConfig) -> anyhow::Result<Pool<Postgres>> {
-        let options = PgConnectOptions::new()
+        let mut options = PgConnectOptions::new()
             .username(&config.username)
             .password(&config.password)
             .host(&config.host)
             .port(config.port)
             .database(&config.database_name);
+        // 设置 sql 日志级别
+        options.log_statements(LevelFilter::Debug);
         let pool = PgPoolOptions::new()
             .connect_timeout(Duration::from_secs(2))
             .connect_with(options).await?;
