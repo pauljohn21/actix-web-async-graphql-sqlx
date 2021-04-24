@@ -404,6 +404,7 @@ dependencies = [
  "futures-util",
  "http",
  "indexmap",
+ "log",
  "multer",
  "once_cell",
  "pin-project-lite 0.2.6",
@@ -2311,7 +2312,9 @@ dependencies = [
  "log4rs",
  "serde 1.0.125",
  "serde-aux",
+ "serde_json",
  "sqlx",
+ "thiserror",
  "uuid",
 ]
 

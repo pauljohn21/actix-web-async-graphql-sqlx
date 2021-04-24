@@ -1,35 +1,39 @@
 use actix_web::{HttpResponse, Result, web};
 use async_graphql::{EmptySubscription, Schema};
+use async_graphql::extensions::ApolloTracing;
 use async_graphql::http::{GraphQLPlaygroundConfig, playground_source};
 use async_graphql_actix_web::{Request, Response};
 use sqlx::PgPool;
 
-use queries::Query;
+use queries::QueryRoot;
 
-use crate::gql::mutations::Mutation;
+use crate::gql::mutations::MutationRoot;
 
 pub mod queries;
 pub mod mutations;
 
-/// 为了代码简洁, 定义 `ActixSchema`
-type ServiceSchema = Schema<
-    Query,
-    Mutation,
+/// 为了代码简洁, 定义 `ServiceSchema`
+pub type ServiceSchema = Schema<
+    QueryRoot,
+    MutationRoot,
     EmptySubscription
 >;
 
+/// 创建 Schema
 pub async fn build_schema(pool: PgPool) -> ServiceSchema {
-    // query 和 Mutation的根对象，并使用 EmptySubscription。
-    // 在架构对象中添加全局sql数据源。
-    Schema::build(Query, Mutation, EmptySubscription)
+    Schema::build(QueryRoot::default(), MutationRoot::default(), EmptySubscription)
+        // TODO: 2021-04-24 13:22:26 配置文件控制开启/关闭  ApolloTracing 插件
+        .extension(ApolloTracing)
         .data(pool)
         .finish()
 }
 
+/// Schema 执行
 pub async fn graphql(schema: web::Data<ServiceSchema>, req: Request) -> Response {
     schema.execute(req.into_inner()).await.into()
 }
 
+/// 创建 GraphQLPlayground
 pub async fn graphiql() -> Result<HttpResponse> {
     Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(
         playground_source(

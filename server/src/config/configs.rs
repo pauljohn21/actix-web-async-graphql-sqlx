@@ -66,8 +66,6 @@ pub struct DatabaseConfig {
     pub port: u16,
     pub host: String,
     pub database_name: String,
-    // TODO: 2021-04-22 13:15:04 未实现
-    pub require_ssl: Option<bool>,
 }
 
 /// 日志相关配置
