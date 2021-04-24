@@ -1,4 +1,5 @@
 use anyhow::Result;
+use anyhow::Context;
 use async_graphql::*;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -46,7 +47,7 @@ impl Users {
             //language=sql
             "INSERT INTO users(username, email, password_hash) VALUES ($1, $2, $3) RETURNING *",
             username, email, password_hash
-        ).fetch_one(pool).await?;
+        ).fetch_one(pool).await.context("创建用户")?;
 
         Ok(row)
     }
@@ -58,7 +59,19 @@ impl Users {
             //language=sql
             "SELECT * FROM users WHERE username = $1",
             username
-        ).fetch_optional(pool).await?;
+        ).fetch_optional(pool).await.context("查询用户")?;
+
+        Ok(row)
+    }
+
+    /// 查询用户2
+    pub async fn find_by_username2(pool: &PgPool, username: &str) -> Result<Users> {
+        let row = sqlx::query_as!(
+            Users,
+            //language=sql
+            "SELECT * FROM users WHERE username = $1",
+            username
+        ).fetch_one(pool).await.context("查询用户2")?;
 
         Ok(row)
     }
@@ -69,7 +82,7 @@ impl Users {
             //language=sql
             "SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)",
             username
-        ).fetch_one(pool).await?;
+        ).fetch_one(pool).await.context("检查用户是否存在")?;
         let exists: Option<bool> = row.exists;
         Ok(exists.unwrap_or_default())
     }
