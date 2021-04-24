@@ -22,4 +22,4 @@ level = "debug"
 appenders = ["stdout", "requests"]
 
 [loggers]
-#"actix_server".level = "info"
+"actix_server".level = "debug"

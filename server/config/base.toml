@@ -10,6 +10,8 @@ host = "localhost"
 port = 8080
 ## 路径 非必填 默认/
 context_path = "/"
+## 健康检查 非必填 默认 /health_check
+health_check = "/health_check"
 
 # graphql 配置
 [graphql]
@@ -24,16 +26,14 @@ graphiql.enable = true
 [database]
 ## 数据库用户名
 username = "server"
-## 数据库密码 非必填 默认空
-password = "server"
+## 数据库密码
+password = "123456"
 ## 数据地址
 host = "localhost"
 ## 数据库端口
 port = 5432
 ## 数据库名
 database_name = "server"
-## 是否使用ssl 非必填 默认false
-require_ssl = false
 
 # 日志配置
 [log]

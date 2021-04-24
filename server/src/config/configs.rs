@@ -3,6 +3,9 @@ use serde_aux::field_attributes::deserialize_number_from_string;
 use std::env::current_dir;
 use anyhow::Context;
 use std::path::PathBuf;
+use sqlx::{ Postgres, Pool};
+use sqlx::postgres::{PgPoolOptions, PgConnectOptions};
+use std::time::Duration;
 
 /// 配置文件目录
 pub const CONFIG_PATH: &str = "config/";
@@ -24,7 +27,7 @@ pub const SEPARATOR: &str = "_";
 #[derive(Deserialize, Clone, Debug)]
 pub struct Configs {
     pub server: ServerConfig,
-    pub graphql: GraphQLConfig,
+    pub graphql: GraphQlConfig,
     pub database: DatabaseConfig,
     pub log: LogConfig,
 }
@@ -37,18 +40,19 @@ pub struct ServerConfig {
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub context_path: Option<String>,
+    pub health_check: Option<String>,
 }
 
 /// Graphql配置
 #[derive(Deserialize, Clone, Debug)]
-pub struct GraphQLConfig {
+pub struct GraphQlConfig {
     pub path: String,
-    pub graphiql: GraphiQLConfig,
+    pub graphiql: GraphiQlConfig,
 }
 
 /// Graphiql配置
 #[derive(Deserialize, Clone, Debug)]
-pub struct GraphiQLConfig {
+pub struct GraphiQlConfig {
     pub path: String,
     pub enable: Option<bool>,
 }
@@ -57,12 +61,11 @@ pub struct GraphiQLConfig {
 #[derive(Deserialize, Clone, Debug)]
 pub struct DatabaseConfig {
     pub username: String,
-    pub password: Option<String>,
+    pub password: String,
     #[serde(deserialize_with = "deserialize_number_from_string")]
     pub port: u16,
     pub host: String,
     pub database_name: String,
-    pub require_ssl: Option<bool>,
 }
 
 /// 日志相关配置
@@ -106,18 +109,6 @@ impl Configs {
     }
 }
 
-/// 获取配置文件路径
-fn get_config_dir() -> anyhow::Result<PathBuf> {
-    let base_path = current_dir().context("无法确定当前目录")?;
-
-    let mut config_dir = base_path.join(CONFIG_PATH);
-
-    if !config_dir.as_path().exists() {
-        config_dir = base_path.join(SERVER_CONFIG_PATH);
-    };
-    Ok(config_dir)
-}
-
 impl ServerConfig {
     /// 获取服务地址
     pub fn get_address(&self) -> String {
@@ -134,4 +125,33 @@ impl LogConfig {
         log::info!("初始化 配置文件, 日志 完成");
         result
     }
+}
+
+impl DatabaseConfig {
+    /// 初始化数据库连接池
+    pub async fn init(config: &DatabaseConfig) -> anyhow::Result<Pool<Postgres>> {
+        let options = PgConnectOptions::new()
+            .username(&config.username)
+            .password(&config.password)
+            .host(&config.host)
+            .port(config.port)
+            .database(&config.database_name);
+        let pool = PgPoolOptions::new()
+            .connect_timeout(Duration::from_secs(2))
+            .connect_with(options).await?;
+        Ok(pool)
+    }
+}
+
+
+/// 获取配置文件路径
+fn get_config_dir() -> anyhow::Result<PathBuf> {
+    let base_path = current_dir().context("无法确定当前目录")?;
+
+    let mut config_dir = base_path.join(CONFIG_PATH);
+
+    if !config_dir.as_path().exists() {
+        config_dir = base_path.join(SERVER_CONFIG_PATH);
+    };
+    Ok(config_dir)
 }
