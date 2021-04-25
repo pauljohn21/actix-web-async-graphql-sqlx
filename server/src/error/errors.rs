@@ -15,7 +15,7 @@ pub enum AppError {
 }
 
 impl AppError {
-    // TODO: 2021-04-25 00:16:38 错误处理先这样吧 以后有了更好的再处理 总归服务器的错误不应该暴露到客户端去.
+    //  2021-04-25 00:16:38 错误处理先这样吧 以后有了更好的再处理 总归服务器的错误不应该暴露到客户端去.
     /// 返回错误扩展并输出日志的闭包
     pub fn log_extend(self) -> Box<dyn FnOnce(anyhow::Error) -> Error> {
         Box::new(move |error| {

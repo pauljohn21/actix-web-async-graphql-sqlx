@@ -48,6 +48,7 @@ pub struct ServerConfig {
 #[derive(Deserialize, Clone, Debug)]
 pub struct GraphQlConfig {
     pub path: String,
+    pub tracing: Option<bool>,
     pub graphiql: GraphiQlConfig,
 }
 
@@ -114,6 +115,11 @@ impl ServerConfig {
     /// 获取服务地址
     pub fn get_address(&self) -> String {
         format!("{}:{}", &self.host, &self.port)
+    }
+
+    /// 获取健康检查地址
+    pub fn get_health_check(&self) -> String {
+       self.health_check.clone().unwrap_or("/health_check".to_string())
     }
 }
 
