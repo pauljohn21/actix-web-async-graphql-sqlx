@@ -11,6 +11,7 @@ use gql::ServiceSchema;
 
 use crate::config::configs::{Configs, DatabaseConfig};
 use crate::gql::{graphiql, graphql};
+use actix_web::middleware::Logger;
 
 pub mod config;
 pub mod gql;
@@ -51,6 +52,8 @@ impl Application {
 fn build_actix_server(configs: Arc<Configs>, address: String, schema: ServiceSchema) -> anyhow::Result<Server> {
     let server = HttpServer::new(move || {
         App::new()
+            // TODO: 日志中间件格式调整
+            .wrap(Logger::default())
             .data(schema.clone())
             .configure(|cfg| register_service(cfg, configs.clone()))
     })
