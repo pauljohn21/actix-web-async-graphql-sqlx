@@ -42,9 +42,10 @@ pub async fn graphql(schema: web::Data<ServiceSchema>, req: Request) -> Response
 
 /// 创建 GraphQLPlayground
 pub async fn graphiql(config: web::Data<Arc<Configs>>) -> Result<HttpResponse> {
-    let path = &config.graphql.graphiql.path;
+    let path = &config.graphql.path;
     Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(
         playground_source(
+            // TODO: 2021-04-22 01:37:25 配置文件注入
             GraphQLPlaygroundConfig::new(path).subscription_endpoint(path)
         )
     ))

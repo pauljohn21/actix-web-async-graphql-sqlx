@@ -76,7 +76,7 @@ fn register_service(cfg: &mut ServiceConfig, configs: Arc<Configs>) {
         .guard(guard::Post()).to(graphql));
 
     // rest 健康检查
-    cfg.service(web::resource(&configs.server.get_health_check())
+    cfg.service(web::resource(configs.server.get_health_check())
         .guard(guard::Get()).to(health_check));
 
     // 开发环境的工具
