@@ -52,7 +52,7 @@ impl Users {
         Ok(row)
     }
 
-    /// 查询用户
+    /// 根据用户名查询用户
     pub async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>> {
         let row = sqlx::query_as!(
             Users,
@@ -64,14 +64,14 @@ impl Users {
         Ok(row)
     }
 
-    /// 查询用户2
+    /// 根据用户名查询用户2
     pub async fn find_by_username2(pool: &PgPool, username: &str) -> Result<Users> {
         let row = sqlx::query_as!(
             Users,
             //language=sql
             "SELECT * FROM users WHERE username = $1",
             username
-        ).fetch_one(pool).await.context("查询用户2")?;
+        ).fetch_one(pool).await.context("根据用户名查询用户2")?;
 
         Ok(row)
     }

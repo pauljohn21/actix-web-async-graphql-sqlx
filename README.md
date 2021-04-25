@@ -14,6 +14,7 @@
 - [x] 分包lib, 准备集成测试  
 - [x] async-graphql 错误扩展
 - [x] 基于 actix-web 日志中间件 配合 log4rs 记录访问日志 并且单独输出到文件
+- [ ] 健康检查  health_check & ping
 - [ ] 入参校验 基于 validator
 - [ ] 用户注册, 密码salt与hash
 - [ ] 用户登录
