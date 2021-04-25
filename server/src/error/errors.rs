@@ -15,10 +15,9 @@ pub enum AppError {
 }
 
 impl AppError {
-    // TODO: 2021-04-25 00:16:38 错误处理先这样吧 以后有了更好的再处理 总归服务器的错误不应该暴露到客户端去.
-    // TODO: 在返回给客户端的新增中新增了 code 业务状态码, 作为业务状态梳理
+    //  2021-04-25 00:16:38 错误处理先这样吧 以后有了更好的再处理 总归服务器的错误不应该暴露到客户端去.
     /// 返回错误扩展并输出日志的闭包
-    pub fn extend_log(self) -> Box<dyn FnOnce(anyhow::Error) -> async_graphql::Error> {
+    pub fn log_extend(self) -> Box<dyn FnOnce(anyhow::Error) -> Error> {
         Box::new(move |error| {
             log::error!("{:?}", error);
             self.extend()
@@ -32,6 +31,7 @@ impl ErrorExtensions for AppError {
     fn extend(&self) -> Error {
         self.extend_with(|error, e| {
             match error {
+                // 在返回给客户端的新增中新增了 code 业务状态码, 作为业务状态梳理
                 AppError::InternalError => e.set("code", "B0001"),
                 AppError::ClientError => e.set("code", "A0001"),
                 AppError::UsernameAlreadyExists => e.set("code", "A0002"),
