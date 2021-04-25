@@ -119,7 +119,12 @@ impl ServerConfig {
 
     /// 获取健康检查地址
     pub fn get_health_check(&self) -> String {
-       self.health_check.clone().unwrap_or("/health_check".to_string())
+        // &self.health_check.unwrap_or(String::from("/health_check"))
+        if let Some(path) =  &self.health_check {
+            path.clone()
+        } else {
+            String::from("/health_check")
+        }
     }
 }
 
