@@ -31,5 +31,4 @@ serde_json = "1.0.64"
 validator = "0.13.0"
 validator_derive = "0.13.0"
 jsonwebtoken = "7.2.0"
-# TODO: 交叉编译时 不能开启simd 考虑使用 build.rs 控制
-argonautica = { version = "0.2", features = ["serde", "simd"] }
+argonautica = { version = "0.2", features = ["serde"] }
