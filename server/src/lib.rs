@@ -21,6 +21,7 @@ pub mod domain;
 pub mod web;
 pub mod common;
 pub mod config;
+pub mod service;
 
 /// http server application
 pub struct Application {
