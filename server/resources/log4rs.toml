@@ -30,10 +30,11 @@ policy.roller.base = 1
 policy.roller.count = 5
 
 [root]
-level = "debug"
+level = "info"
 appenders = ["stdout", "requests"]
 
 [loggers]
+#"sqlx::query".level = "debug"
 "actix_web::middleware::logger".level = "info"
 "actix_web::middleware::logger".appenders = ["access"]
 "actix_web::middleware::logger".additive = false

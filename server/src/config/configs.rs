@@ -9,8 +9,8 @@ use std::time::Duration;
 use log::LevelFilter;
 
 /// 配置文件目录
-pub const CONFIG_PATH: &str = "config/";
-pub const SERVER_CONFIG_PATH: &str = "server/config/";
+pub const CONFIG_PATH: &str = "resources/";
+pub const SERVER_CONFIG_PATH: &str = "server/resources/";
 
 /// 配置文件默认文件
 pub const DEFAULT_CONFIG: &str = "base";

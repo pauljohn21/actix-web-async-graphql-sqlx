@@ -16,6 +16,7 @@
 - [x] 基于 actix-web 日志中间件 配合 log4rs 记录访问日志 并且单独输出到文件
 - [x] 健康检查  health_check & ping
 - [x] 配置文件控制开启/关闭  ApolloTracing 插件  
+- [ ] sqlx日志级别单独控制
 - [ ] 用户注册, 密码salt与hash
 - [ ] 入参校验 基于 validator
 - [ ] 用户登录

@@ -32,3 +32,4 @@ validator = "0.13.0"
 validator_derive = "0.13.0"
 jsonwebtoken = "7.2.0"
 argonautica = { version = "0.2", features = ["serde"] }
+async-trait = "0.1.50"
