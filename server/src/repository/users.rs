@@ -1,42 +1,21 @@
-use anyhow::Result;
-use anyhow::Context;
-use async_graphql::*;
-use chrono::prelude::*;
-use serde::{Deserialize, Serialize};
-use sqlx::{FromRow};
+use anyhow::*;
 use sqlx::PgPool;
-use uuid::Uuid;
+use crate::domain::users::Users;
+// use async_trait::async_trait;
+//
+// #[async_trait]
+// trait UsersRepository {
+//     /// 创建用户
+//     async fn create(pool: &PgPool, username: &str, email: &str, password_hash: &str) -> Result<Users>;
+//
+//     /// 根据用户名查询用户
+//     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>>;
+//
+//     /// 检查用户是否存在
+//     async fn find_by_username2(pool: &PgPool, username: &str) -> Result<Users>
+// }
 
-/// 用户模型
-#[derive(SimpleObject, FromRow, Deserialize, Serialize)]
-#[graphql(complex)]
-pub struct Users {
-    pub id: Uuid,
-    pub username: String,
-    pub email: String,
-    #[graphql(skip)]
-    pub password_hash: String,
-    pub full_name: Option<String>,
-    pub bio: Option<String>,
-    pub image: Option<String>,
-    pub active: bool,
-    pub email_verified: bool,
-    #[graphql(skip)]
-    pub created_at: DateTime<Utc>,
-    #[graphql(skip)]
-    pub updated_at: DateTime<Utc>,
-}
 
-#[ComplexObject]
-impl Users {
-    async fn created_at(&self) -> DateTime<Local> {
-        self.created_at.with_timezone(&Local)
-    }
-
-    async fn updated_at(&self) -> DateTime<Local> {
-        self.updated_at.with_timezone(&Local)
-    }
-}
 
 /// 用户方法
 impl Users {
@@ -81,7 +60,7 @@ impl Users {
         let row = sqlx::query!(
             //language=sql
             "SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)",
-            username
+            username,
         ).fetch_one(pool).await.context("检查用户是否存在")?;
         let exists: Option<bool> = row.exists;
         Ok(exists.unwrap_or_default())
