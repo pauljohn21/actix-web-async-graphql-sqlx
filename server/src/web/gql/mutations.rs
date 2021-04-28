@@ -48,7 +48,7 @@ impl UsersMutation {
         if exists {
             return Err(AppError::UsernameAlreadyExists.extend());
         }
-        
+
         let token = UsersService::user_register(pool, &new_user).await?;
         Ok(token)
     }

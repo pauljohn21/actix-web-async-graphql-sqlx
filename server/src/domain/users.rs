@@ -1,9 +1,9 @@
-use chrono::{DateTime, Utc, Local};
-use uuid::Uuid;
 use async_graphql::*;
+use chrono::{DateTime, Local, Utc};
 use serde::Deserialize;
 use serde::Serialize;
 use sqlx::FromRow;
+use uuid::Uuid;
 use validator::Validate;
 
 /// 用户模型

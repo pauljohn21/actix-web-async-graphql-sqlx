@@ -1,8 +1,7 @@
+use actix_web::rt::time::Instant;
 use server::config::configs::{Configs, LogConfig};
 use server::Application;
 use std::sync::Arc;
-use actix_web::rt::time::Instant;
-
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
