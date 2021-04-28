@@ -1,13 +1,10 @@
 use async_graphql::*;
 use sqlx::PgPool;
 
+use crate::service::users::{ExtUsersService, UsersService};
 use crate::{
     common::error::errors::AppError,
     domain::users::{NewUser, Users},
-};
-use crate::{
-    repository::users::UsersRepository,
-    service::users::{ExtUsersService, UsersService},
 };
 
 /// 变更根节点

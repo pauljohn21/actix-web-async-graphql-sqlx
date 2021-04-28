@@ -1,8 +1,9 @@
-use crate::domain::users::{NewUser, Users};
-use crate::repository::users::{ExtUsersRepository, UsersRepository};
 use anyhow::Result;
 use async_trait::async_trait;
 use sqlx::PgPool;
+
+use crate::domain::users::{NewUser, Users};
+use crate::repository::users::{ExtUsersRepository, UsersRepository};
 
 pub struct UsersService;
 
