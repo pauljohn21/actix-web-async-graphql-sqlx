@@ -4,6 +4,7 @@ use async_graphql::*;
 use serde::Deserialize;
 use serde::Serialize;
 use sqlx::FromRow;
+use validator::Validate;
 
 /// 用户模型
 #[derive(SimpleObject, FromRow, Deserialize, Serialize)]
@@ -37,10 +38,14 @@ impl Users {
 }
 
 /// 用户注册
-#[derive(Serialize, Deserialize, InputObject)]
+#[derive(Serialize, Deserialize, InputObject, Validate)]
 pub struct NewUser {
+    #[validate(length(min = 3))]
     pub username: String,
+    #[validate(email)]
     pub email: String,
+    #[validate(length(min = 6))]
     pub password: String,
+    #[validate(length(min = 3))]
     pub nickname: String,
 }
