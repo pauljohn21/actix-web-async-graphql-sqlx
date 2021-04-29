@@ -28,7 +28,7 @@ sqlx = { version = "0.4.2", features = ["runtime-actix-native-tls", "uuid", "pos
 uuid = { version = "0.8.2", features = ["serde", "v4"] }
 thiserror = "1.0.24"
 serde_json = "1.0.64"
-validator = {version = "0.13.0", features = ["derive"]}
+validator = { version = "0.13.0", features = ["derive"] }
 jsonwebtoken = "7.2.0"
 argonautica = { version = "0.2", features = ["serde"] }
 async-trait = "0.1.50"

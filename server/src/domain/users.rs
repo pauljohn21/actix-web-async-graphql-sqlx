@@ -40,12 +40,12 @@ impl Users {
 /// 用户注册
 #[derive(Serialize, Deserialize, InputObject, Validate)]
 pub struct NewUser {
-    #[validate(length(min = 3))]
+    #[validate(length(min = 5, max = 10, message = "用户名不符合{min}到{max}"))]
     pub username: String,
-    #[validate(email)]
+    #[validate(email(message = "邮箱不符合"))]
     pub email: String,
-    #[validate(length(min = 6))]
+    #[validate(length(min = 6, message = "密码不符合"))]
     pub password: String,
-    #[validate(length(min = 3))]
+    #[validate(length(min = 3, message = "昵称不符合"))]
     pub nickname: String,
 }

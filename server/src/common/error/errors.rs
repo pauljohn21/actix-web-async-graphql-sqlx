@@ -15,6 +15,9 @@ pub enum AppError {
 
     #[error("邮箱已存在")]
     EmailAlreadyExists,
+
+    #[error("请求参数错误")]
+    RequestParameterError,
 }
 
 impl AppError {
@@ -39,6 +42,7 @@ impl ErrorExtensions for AppError {
                 AppError::ClientError => e.set("code", "A0001"),
                 AppError::UsernameAlreadyExists => e.set("code", "A0002"),
                 AppError::EmailAlreadyExists => e.set("code", "A0154"),
+                AppError::RequestParameterError => e.set("code", "A0001"),
             }
         })
     }
