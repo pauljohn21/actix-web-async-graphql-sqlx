@@ -35,7 +35,9 @@ impl UsersMutation {
     async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<String> {
         let pool = ctx.data::<PgPool>()?;
 
-        new_user.validate()?;
+        new_user
+            .validate()
+            .map_err(AppError::RequestParameterError.validation_extend())?;
 
         // 检查用户名重复
         let exists = UsersService::exists_by_username(pool, &new_user.username).await?;

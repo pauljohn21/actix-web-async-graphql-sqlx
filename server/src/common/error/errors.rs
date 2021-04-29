@@ -1,5 +1,6 @@
 use async_graphql::{Error as AgError, ErrorExtensions};
 use thiserror::Error;
+use validator::ValidationErrors;
 
 /// 定义错误枚举
 #[derive(Debug, Error)]
@@ -25,8 +26,23 @@ impl AppError {
     /// 返回错误扩展并输出日志的闭包
     pub fn log_extend(self) -> Box<dyn FnOnce(anyhow::Error) -> AgError> {
         Box::new(move |error| {
-            log::error!("{:?}", error);
+            // 日志打印输出的位置包路径显然不对, 思考能不能找到最初的位置
+            log::error!("{:#}", error);
             self.extend()
+        })
+    }
+
+    /// 返回错误扩展并输出日志的闭包
+    pub fn validation_extend(self) -> Box<dyn FnOnce(ValidationErrors) -> AgError> {
+        Box::new(move |error| {
+            log::warn!("{:?}", error);
+            self.extend_with(|_, e| {
+                e.set("code", "A0001");
+                for (column, error_vec) in error.field_errors() {
+                    let result = serde_json::to_string(&error_vec.first()).unwrap_or_default();
+                    e.set(column, result);
+                }
+            })
         })
     }
 }
