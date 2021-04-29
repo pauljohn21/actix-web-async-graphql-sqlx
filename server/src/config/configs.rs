@@ -1,12 +1,12 @@
+use anyhow::Context;
+use log::LevelFilter;
 use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+use sqlx::{ConnectOptions, Pool, Postgres};
 use std::env::current_dir;
-use anyhow::Context;
 use std::path::PathBuf;
-use sqlx::{Postgres, Pool, ConnectOptions};
-use sqlx::postgres::{PgPoolOptions, PgConnectOptions};
 use std::time::Duration;
-use log::LevelFilter;
 
 /// 配置文件目录
 pub const CONFIG_PATH: &str = "resources/";
@@ -120,7 +120,7 @@ impl ServerConfig {
     /// 获取健康检查地址
     pub fn get_health_check(&self) -> String {
         // &self.health_check.unwrap_or(String::from("/health_check"))
-        if let Some(path) =  &self.health_check {
+        if let Some(path) = &self.health_check {
             path.clone()
         } else {
             String::from("/health_check")
@@ -152,11 +152,11 @@ impl DatabaseConfig {
         options.log_statements(LevelFilter::Debug);
         let pool = PgPoolOptions::new()
             .connect_timeout(Duration::from_secs(2))
-            .connect_with(options).await?;
+            .connect_with(options)
+            .await?;
         Ok(pool)
     }
 }
-
 
 /// 获取配置文件路径
 fn get_config_dir() -> anyhow::Result<PathBuf> {
