@@ -54,6 +54,7 @@ impl ExtUsersRepository for UsersRepository {
     }
 
     /// 根据用户名查询用户
+    #[tracing::instrument(skip(pool))]
     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>> {
         let row = sqlx::query_as!(Users, "SELECT * FROM users WHERE username = $1", username)
             .fetch_optional(pool)

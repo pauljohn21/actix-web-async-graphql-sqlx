@@ -15,6 +15,8 @@ use crate::config::configs::{Configs, DatabaseConfig};
 use crate::gql::{graphiql, graphql};
 use crate::web::gql;
 use crate::web::rest::health_check::health_check;
+use crate::web::rest::users::find_by_username;
+use sqlx::PgPool;
 
 pub mod common;
 pub mod config;
@@ -33,9 +35,9 @@ impl Application {
     pub async fn build(configs: Arc<Configs>) -> anyhow::Result<Application> {
         // 链接数据库
         let pool = DatabaseConfig::init(&configs.database).await?;
-
+        let pool = Arc::new(pool);
         // 初始化 GraphQL schema.
-        let schema = gql::build_schema(pool, &configs.graphql).await;
+        let schema = gql::build_schema(pool.clone(), &configs.graphql).await;
         tracing::info!(r#"初始化 'GraphQL Schema' 完成! "#);
 
         let address = configs.server.get_address();
@@ -48,7 +50,7 @@ impl Application {
             );
         }
 
-        let server = build_actix_server(configs, address, schema)?;
+        let server = build_actix_server(configs, address, schema, pool)?;
 
         Ok(Application { server })
     }
@@ -64,12 +66,14 @@ fn build_actix_server(
     configs: Arc<Configs>,
     address: String,
     schema: ServiceSchema,
+    pool: Arc<PgPool>,
 ) -> anyhow::Result<Server> {
     let server = HttpServer::new(move || {
         App::new()
-            .wrap(Logger::default())
+            // .wrap(Logger::default())
             .data(configs.clone())
             .data(schema.clone())
+            .data(pool.clone())
             .configure(|cfg| register_service(cfg, configs.clone()))
     })
     .bind(address)
@@ -90,6 +94,12 @@ fn register_service(cfg: &mut ServiceConfig, configs: Arc<Configs>) {
         resource(configs.server.get_health_check())
             .guard(Get())
             .to(health_check),
+    );
+
+    cfg.service(
+        resource("/find-by-username")
+            .guard(Get())
+            .to(find_by_username),
     );
 
     // 开发环境的工具

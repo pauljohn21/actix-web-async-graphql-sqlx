@@ -1,5 +1,5 @@
 use actix_web::{web, HttpResponse, Result};
-use async_graphql::extensions::{ApolloTracing, Logger};
+use async_graphql::extensions::{ApolloTracing, Logger, Tracing};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptySubscription, Schema};
 use async_graphql_actix_web::{Request, Response};
@@ -18,7 +18,7 @@ pub mod queries;
 pub type ServiceSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 /// 创建 Schema
-pub async fn build_schema(pool: PgPool, config: &GraphQlConfig) -> ServiceSchema {
+pub async fn build_schema(pool: Arc<PgPool>, config: &GraphQlConfig) -> ServiceSchema {
     let builder = Schema::build(
         QueryRoot::default(),
         MutationRoot::default(),
@@ -26,7 +26,11 @@ pub async fn build_schema(pool: PgPool, config: &GraphQlConfig) -> ServiceSchema
     )
     .data(pool);
     if config.tracing.unwrap_or(false) {
-        builder.extension(ApolloTracing).extension(Logger).finish()
+        builder
+            .extension(ApolloTracing)
+            .extension(Tracing)
+            .extension(Logger)
+            .finish()
     } else {
         builder.finish()
     }

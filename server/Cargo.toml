@@ -13,16 +13,17 @@ name = "server"
 path = "src/main.rs"
 
 [dependencies]
-actix-web = "3"
+actix-web = "3.3.2"
 anyhow = "1.0.40"
-async-graphql = { version = "2.8.2", features = ["chrono", "uuid", "apollo_tracing", "log", "tracing"] }
-async-graphql-actix-web = "2.8.2"
+async-graphql = { version = "2.8.4", features = ["chrono", "uuid", "apollo_tracing", "log", "tracing"] }
+async-graphql-actix-web = "2.8.4"
 config = "0.11.0"
 dotenv = "0.15.0"
-tracing = { version = "0.1", features = ["log"] }
+tracing = { version = "0.1.26", features = ["log"] }
+tracing-log = { version = "0.1.2", features = ["env_logger"] }
 tracing-futures = "0.2.5"
-tracing-subscriber = { version = "0.2.12", features = ["registry", "env-filter"] }
-tracing-bunyan-formatter = "0.2.1"
+tracing-subscriber = { version = "0.2.17", features = ["registry", "env-filter"] }
+tracing-appender = "0.1.2"
 serde = "1.0.125"
 serde-aux = "2.2.0"
 chrono = { version = "0.4.19", features = ["serde"] }
@@ -32,6 +33,7 @@ thiserror = "1.0.24"
 serde_json = "1.0.64"
 validator = { version = "0.13.0", features = ["derive"] }
 jsonwebtoken = "7.2.0"
-argonautica = { version = "0.2", features = ["serde"] }
+argonautica = { version = "0.2.0", features = ["serde"] }
 async-trait = "0.1.50"
-tracing-log = "0.1.2"
+
+

@@ -48,6 +48,7 @@ impl ExtUsersService for UsersService {
         UsersRepository::create(pool, username, email, password_hash).await
     }
 
+    #[tracing::instrument(skip(pool))]
     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>> {
         UsersRepository::find_by_username(pool, username).await
     }

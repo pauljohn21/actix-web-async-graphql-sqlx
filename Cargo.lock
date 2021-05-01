@@ -435,9 +435,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql"
-version = "2.8.2"
+version = "2.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb5e71af65ee4a367603829e92b26710caf4116d1eaca8953dedf1809b33694a"
+checksum = "8c11be6c0007e57ddc3ccfaaec854063ef975e800d376277ae0854925074bd74"
 dependencies = [
  "async-graphql-derive",
  "async-graphql-parser",
@@ -466,9 +466,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-actix-web"
-version = "2.8.2"
+version = "2.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3e0e7b982522c6f3b32d6c24cbefd737572b6adf3ddb4b935785e15a8277d06"
+checksum = "cbd8035ae1ccb5e43fcfd60ea1b208f24c28543a8930dcd657bf28e536d66b2e"
 dependencies = [
  "actix",
  "actix-http",
@@ -483,9 +483,9 @@ dependencies = [
 
 [[package]]
 name = "async-graphql-derive"
-version = "2.8.2"
+version = "2.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6fd4c2eb837e894909fe13509f2351fa3990c114426e41255936800892ccbe26"
+checksum = "74a7a23428b13e2f950e3fa04de4978184cd133f193f63c838d70ed38c543747"
 dependencies = [
  "Inflector",
  "async-graphql-parser",
@@ -660,7 +660,7 @@ dependencies = [
  "cfg-if 0.1.10",
  "clang-sys",
  "clap",
- "env_logger",
+ "env_logger 0.6.2",
  "hashbrown 0.1.8",
  "lazy_static",
  "log",
@@ -1165,6 +1165,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "env_logger"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44533bbbb3bb3c1fa17d9f2e4e38bbbaf8396ba82193c4cb1b6445d711445d36"
+dependencies = [
+ "atty",
+ "humantime",
+ "log",
+ "regex",
+ "termcolor",
+]
+
+[[package]]
 name = "event-listener"
 version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1403,16 +1416,6 @@ checksum = "501466ecc8a30d1d3b7fc9229b122b2ce8ed6e9d9223f1138d4babb253e51817"
 dependencies = [
  "typenum",
  "version_check 0.9.3",
-]
-
-[[package]]
-name = "gethostname"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e692e296bfac1d2533ef168d0b60ff5897b8b70a4009276834014dd8924cc028"
-dependencies = [
- "libc",
- "winapi 0.3.9",
 ]
 
 [[package]]
@@ -2781,7 +2784,7 @@ dependencies = [
  "sqlx",
  "thiserror",
  "tracing",
- "tracing-bunyan-formatter",
+ "tracing-appender",
  "tracing-futures",
  "tracing-log",
  "tracing-subscriber",
@@ -3328,15 +3331,26 @@ dependencies = [
 
 [[package]]
 name = "tracing"
-version = "0.1.25"
+version = "0.1.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01ebdc2bb4498ab1ab5f5b73c5803825e60199229ccba0698170e3be0e7f959f"
+checksum = "09adeb8c97449311ccd28a427f96fb563e7fd31aabf994189879d9da2394b89d"
 dependencies = [
  "cfg-if 1.0.0",
  "log",
  "pin-project-lite 0.2.6",
  "tracing-attributes",
  "tracing-core",
+]
+
+[[package]]
+name = "tracing-appender"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9965507e507f12c8901432a33e31131222abac31edd90cabbcf85cf544b7127a"
+dependencies = [
+ "chrono",
+ "crossbeam-channel 0.5.1",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -3351,27 +3365,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "tracing-bunyan-formatter"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e100af65aab7f8c77b712a98857803827d6205e88084d5a75d85efbde927780"
-dependencies = [
- "chrono",
- "gethostname",
- "log",
- "serde 1.0.125",
- "serde_json",
- "tracing",
- "tracing-core",
- "tracing-log",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "tracing-core"
-version = "0.1.17"
+version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f50de3927f93d202783f4513cda820ab47ef17f624b03c096e86ef00c67e6b5f"
+checksum = "a9ff14f98b1a4b289c6248a023c1c2fa1491062964e9fed67ab29c4e4da4a052"
 dependencies = [
  "lazy_static",
 ]
@@ -3394,6 +3391,7 @@ version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6923477a48e41c1951f1999ef8bb5a3023eb723ceadafe78ffb65dc366761e3"
 dependencies = [
+ "env_logger 0.7.1",
  "lazy_static",
  "log",
  "tracing-core",

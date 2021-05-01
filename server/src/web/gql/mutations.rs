@@ -6,6 +6,7 @@ use crate::{
     common::error::errors::AppError,
     domain::users::{NewUser, Users},
 };
+use std::sync::Arc;
 use validator::Validate;
 
 /// 变更根节点
@@ -26,15 +27,15 @@ impl UsersMutation {
         email: String,
         password: String,
     ) -> FieldResult<Users> {
-        let pool = ctx.data::<PgPool>()?;
+        let pool = ctx.data::<Arc<PgPool>>()?;
         let users = UsersService::create(pool, &username, &email, &password).await?;
         Ok(users)
     }
 
     /// 注册用户
-    #[tracing::instrument(skip(ctx))]
+    // #[tracing::instrument(skip(ctx))]
     async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<String> {
-        let pool = ctx.data::<PgPool>()?;
+        let pool = ctx.data::<Arc<PgPool>>()?;
 
         tracing::info!("注册用户检测!");
         // 检查用户名重复

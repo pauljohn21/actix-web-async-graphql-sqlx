@@ -159,7 +159,7 @@ impl DatabaseConfig {
 }
 
 /// 获取配置文件路径
-fn get_config_dir() -> anyhow::Result<PathBuf> {
+pub fn get_config_dir() -> anyhow::Result<PathBuf> {
     let base_path = current_dir().context("无法确定当前目录")?;
 
     let mut config_dir = base_path.join(CONFIG_PATH);
