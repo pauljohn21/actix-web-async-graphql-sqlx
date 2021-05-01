@@ -1,5 +1,5 @@
 use actix_web::{web, HttpResponse, Result};
-use async_graphql::extensions::ApolloTracing;
+use async_graphql::extensions::{ApolloTracing, Logger};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptySubscription, Schema};
 use async_graphql_actix_web::{Request, Response};
@@ -24,6 +24,7 @@ pub async fn build_schema(pool: PgPool, config: &GraphQlConfig) -> ServiceSchema
         MutationRoot::default(),
         EmptySubscription,
     )
+    .extension(Logger)
     .data(pool);
     if config.tracing.unwrap_or(false) {
         builder.extension(ApolloTracing).finish()
