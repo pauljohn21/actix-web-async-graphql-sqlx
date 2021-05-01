@@ -38,7 +38,7 @@ impl Users {
 }
 
 /// 用户注册
-#[derive(Serialize, Deserialize, InputObject, Validate)]
+#[derive(Serialize, Deserialize, InputObject, Validate, Debug)]
 pub struct NewUser {
     #[validate(length(min = 5, max = 10, message = "用户名不符合{min}到{max}"))]
     pub username: String,

@@ -36,12 +36,12 @@ impl Application {
 
         // 初始化 GraphQL schema.
         let schema = gql::build_schema(pool, &configs.graphql).await;
-        log::info!(r#"初始化 "GraphQL Schema" 完成! "#);
+        tracing::info!(r#"初始化 'GraphQL Schema' 完成! "#);
 
         let address = configs.server.get_address();
         let enable = &configs.graphql.graphiql.enable;
         if enable.unwrap_or(false) {
-            log::info!(
+            tracing::info!(
                 "🚀 GraphQL UI: http://{}{}",
                 address,
                 &configs.graphql.graphiql.path

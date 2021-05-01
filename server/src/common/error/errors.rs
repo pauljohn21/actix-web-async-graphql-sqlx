@@ -27,7 +27,7 @@ impl AppError {
     pub fn log_extend(self) -> Box<dyn FnOnce(anyhow::Error) -> AgError> {
         Box::new(move |error| {
             // 日志打印输出的位置包路径显然不对, 思考能不能找到最初的位置
-            log::error!("{:#}", error);
+            tracing::error!("{:#}", error);
             self.extend()
         })
     }
@@ -35,7 +35,7 @@ impl AppError {
     /// 返回错误扩展并输出日志的闭包
     pub fn validation_extend(self) -> Box<dyn FnOnce(ValidationErrors) -> AgError> {
         Box::new(move |error| {
-            log::warn!("{:?}", error);
+            tracing::warn!("{:?}", error);
             self.extend_with(|_, e| {
                 e.set("code", "A0001");
                 for (column, error_vec) in error.field_errors() {

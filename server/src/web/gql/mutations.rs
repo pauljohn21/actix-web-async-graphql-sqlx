@@ -13,7 +13,7 @@ use validator::Validate;
 pub struct MutationRoot(UsersMutation);
 
 /// 用户变更 Mutation
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct UsersMutation;
 
 #[Object]
@@ -32,13 +32,11 @@ impl UsersMutation {
     }
 
     /// 注册用户
+    #[tracing::instrument(skip(ctx))]
     async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<String> {
         let pool = ctx.data::<PgPool>()?;
 
-        new_user
-            .validate()
-            .map_err(AppError::RequestParameterError.validation_extend())?;
-
+        tracing::info!("注册用户检测!");
         // 检查用户名重复
         let exists = UsersService::exists_by_username(pool, &new_user.username).await?;
         if exists {
@@ -50,6 +48,10 @@ impl UsersMutation {
         if exists {
             return Err(AppError::UsernameAlreadyExists.extend());
         }
+
+        new_user
+            .validate()
+            .map_err(AppError::RequestParameterError.validation_extend())?;
 
         let token = UsersService::user_register(pool, &new_user).await?;
         Ok(token)

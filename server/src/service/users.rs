@@ -35,7 +35,7 @@ pub trait ExtUsersService {
 
 #[async_trait]
 impl ExtUsersService for UsersService {
-    async fn user_register(pool: &PgPool, new_user: &NewUser) -> Result<String> {
+    async fn user_register(_pool: &PgPool, _new_user: &NewUser) -> Result<String> {
         todo!()
     }
 

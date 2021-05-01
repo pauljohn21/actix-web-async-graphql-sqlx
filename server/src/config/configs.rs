@@ -1,5 +1,4 @@
 use anyhow::Context;
-use log::LevelFilter;
 use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
@@ -7,6 +6,7 @@ use sqlx::{ConnectOptions, Pool, Postgres};
 use std::env::current_dir;
 use std::path::PathBuf;
 use std::time::Duration;
+use tracing::log::LevelFilter;
 
 /// 配置文件目录
 pub const CONFIG_PATH: &str = "resources/";
@@ -30,7 +30,7 @@ pub struct Configs {
     pub server: ServerConfig,
     pub graphql: GraphQlConfig,
     pub database: DatabaseConfig,
-    pub log: LogConfig,
+    // pub log: LogConfig,
 }
 
 /// 服务配置
@@ -69,13 +69,13 @@ pub struct DatabaseConfig {
     pub host: String,
     pub database_name: String,
 }
-
-/// 日志相关配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct LogConfig {
-    /// 日志配置文件
-    pub file: String,
-}
+//
+// /// 日志相关配置
+// #[derive(Deserialize, Clone, Debug)]
+// pub struct LogConfig {
+//     /// 日志配置文件
+//     pub file: String,
+// }
 
 impl Configs {
     /// 初始化配置文件
@@ -128,16 +128,16 @@ impl ServerConfig {
     }
 }
 
-impl LogConfig {
-    /// 初始化日志配置
-    pub fn init(config: &LogConfig) -> anyhow::Result<()> {
-        let config_dir = get_config_dir()?;
-        let result = log4rs::init_file(config_dir.join(&config.file), Default::default())
-            .context(format!("初始化日志配置:[{}]失败!", &config.file));
-        log::info!(r#"初始化 "配置文件" "日志" 完成"#);
-        result
-    }
-}
+// impl LogConfig {
+//     /// 初始化日志配置
+//     pub fn init(config: &LogConfig) -> anyhow::Result<()> {
+//         let config_dir = get_config_dir()?;
+//         let result = log4rs::init_file(config_dir.join(&config.file), Default::default())
+//             .context(format!("初始化日志配置:[{}]失败!", &config.file));
+//         tracing::info!(r#"初始化 "配置文件" "日志" 完成"#);
+//         result
+//     }
+// }
 
 impl DatabaseConfig {
     /// 初始化数据库连接池
