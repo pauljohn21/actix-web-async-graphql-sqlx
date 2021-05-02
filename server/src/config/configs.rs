@@ -24,6 +24,9 @@ pub const SERVER_PREFIX: &str = "SERVER";
 /// 环境变量覆盖配置文件分隔符
 pub const SEPARATOR: &str = "_";
 
+/// 默认健康检查地址
+pub const HEALTH_CHECK: &str = "/health_check";
+
 /// 配置项结构体
 #[derive(Deserialize, Clone, Debug)]
 pub struct Configs {
@@ -119,11 +122,10 @@ impl ServerConfig {
 
     /// 获取健康检查地址
     pub fn get_health_check(&self) -> String {
-        // &self.health_check.unwrap_or(String::from("/health_check"))
         if let Some(path) = &self.health_check {
             path.clone()
         } else {
-            String::from("/health_check")
+            String::from(HEALTH_CHECK)
         }
     }
 }
@@ -134,7 +136,7 @@ impl LogConfig {
         let config_dir = get_config_dir()?;
         let result = log4rs::init_file(config_dir.join(&config.file), Default::default())
             .context(format!("初始化日志配置:[{}]失败!", &config.file));
-        log::info!(r#"初始化 "配置文件" "日志" 完成"#);
+        log::info!(r#"初始化 '配置文件 日志' 完成"#);
         result
     }
 }
