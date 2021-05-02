@@ -1,3 +1,4 @@
+use async_graphql::validators::Email;
 use async_graphql::*;
 use chrono::{DateTime, Local, Utc};
 use serde::Deserialize;
@@ -48,4 +49,11 @@ pub struct NewUser {
     pub password: String,
     #[validate(length(min = 3, message = "昵称不符合"))]
     pub nickname: String,
+}
+
+/// 测试Graphql的字段校验器
+#[derive(Serialize, Deserialize, InputObject)]
+pub struct TestValidator {
+    #[graphql(validator(Email))]
+    pub email: String,
 }
