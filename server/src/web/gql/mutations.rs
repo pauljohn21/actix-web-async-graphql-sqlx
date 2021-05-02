@@ -20,6 +20,7 @@ pub struct UsersMutation;
 #[Object]
 impl UsersMutation {
     /// 创建用户
+    #[tracing::instrument(skip(ctx))]
     async fn create_user(
         &self,
         ctx: &Context<'_>,
@@ -33,7 +34,7 @@ impl UsersMutation {
     }
 
     /// 注册用户
-    // #[tracing::instrument(skip(ctx))]
+    #[tracing::instrument(skip(ctx, new_user, self))]
     async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<String> {
         let pool = ctx.data::<Arc<PgPool>>()?;
 

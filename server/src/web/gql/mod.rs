@@ -26,11 +26,7 @@ pub async fn build_schema(pool: Arc<PgPool>, config: &GraphQlConfig) -> ServiceS
     )
     .data(pool);
     if config.tracing.unwrap_or(false) {
-        builder
-            .extension(ApolloTracing)
-            .extension(Tracing)
-            .extension(Logger)
-            .finish()
+        builder.extension(ApolloTracing).finish()
     } else {
         builder.finish()
     }

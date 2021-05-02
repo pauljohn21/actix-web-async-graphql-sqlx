@@ -17,6 +17,7 @@ use crate::web::gql;
 use crate::web::rest::health_check::health_check;
 use crate::web::rest::users::find_by_username;
 use sqlx::PgPool;
+use tracing_actix_web::TracingLogger;
 
 pub mod common;
 pub mod config;
@@ -70,7 +71,7 @@ fn build_actix_server(
 ) -> anyhow::Result<Server> {
     let server = HttpServer::new(move || {
         App::new()
-            // .wrap(Logger::default())
+            // .wrap(TracingLogger)
             .data(configs.clone())
             .data(schema.clone())
             .data(pool.clone())

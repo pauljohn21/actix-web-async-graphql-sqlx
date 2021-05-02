@@ -35,10 +35,12 @@ pub trait ExtUsersService {
 
 #[async_trait]
 impl ExtUsersService for UsersService {
+    #[tracing::instrument(skip(_pool))]
     async fn user_register(_pool: &PgPool, _new_user: &NewUser) -> Result<String> {
         todo!()
     }
 
+    #[tracing::instrument(skip(pool))]
     async fn create(
         pool: &PgPool,
         username: &str,
@@ -53,14 +55,18 @@ impl ExtUsersService for UsersService {
         UsersRepository::find_by_username(pool, username).await
     }
 
+    #[tracing::instrument(skip(pool))]
     async fn find_by_username2(pool: &PgPool, username: &str) -> Result<Users> {
         UsersRepository::find_by_username2(pool, username).await
     }
 
+    #[tracing::instrument(skip(pool))]
     async fn exists_by_username(pool: &PgPool, username: &str) -> Result<bool> {
+        tracing::info!("判断用户名师父已经存在");
         UsersRepository::exists_by_username(pool, username).await
     }
 
+    #[tracing::instrument(skip(pool))]
     async fn exists_by_email(pool: &PgPool, email: &str) -> Result<bool> {
         UsersRepository::exists_by_email(pool, email).await
     }

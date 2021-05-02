@@ -32,6 +32,7 @@ pub trait ExtUsersRepository {
 #[async_trait]
 impl ExtUsersRepository for UsersRepository {
     /// 创建用户
+    #[tracing::instrument(skip(pool))]
     async fn create(
         pool: &PgPool,
         username: &str,
@@ -65,6 +66,7 @@ impl ExtUsersRepository for UsersRepository {
     }
 
     /// 根据用户名查询用户2
+    #[tracing::instrument(skip(pool))]
     async fn find_by_username2(pool: &PgPool, username: &str) -> Result<Users> {
         let row = sqlx::query_as!(Users, "SELECT * FROM users WHERE username = $1", username)
             .fetch_one(pool)
@@ -75,7 +77,9 @@ impl ExtUsersRepository for UsersRepository {
     }
 
     /// 检查用户是否存在
+    #[tracing::instrument(skip(pool))]
     async fn exists_by_username(pool: &PgPool, username: &str) -> Result<bool> {
+        tracing::info!("检查用户是否存在");
         let row = sqlx::query!(
             "SELECT EXISTS(SELECT 1 FROM users WHERE username = $1)",
             username,
@@ -87,6 +91,7 @@ impl ExtUsersRepository for UsersRepository {
         Ok(exists.unwrap_or_default())
     }
 
+    #[tracing::instrument(skip(pool))]
     async fn exists_by_email(pool: &PgPool, email: &str) -> Result<bool> {
         let row = sqlx::query!("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)", email,)
             .fetch_one(pool)
