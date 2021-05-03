@@ -35,6 +35,7 @@ impl UsersMutation {
     async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<String> {
         let pool = ctx.data::<PgPool>()?;
 
+        // 参数校验
         new_user
             .validate()
             .map_err(AppError::RequestParameterError.validation_extend())?;

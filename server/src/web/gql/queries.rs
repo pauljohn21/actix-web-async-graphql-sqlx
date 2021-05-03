@@ -1,7 +1,6 @@
 use crate::common::error::errors::AppError;
 use crate::domain::users::{TestValidator, Users};
 use crate::service::users::{ExtUsersService, UsersService};
-use async_graphql::static_assertions::_core::ops::Deref;
 use async_graphql::*;
 use sqlx::PgPool;
 
@@ -55,7 +54,7 @@ impl UsersQuery {
     }
 
     /// 测试graphql自带的字段验证器
-    async fn test_validator(&self, ctx: &Context<'_>, tv: TestValidator) -> FieldResult<String> {
+    async fn test_validator(&self, tv: TestValidator) -> FieldResult<String> {
         Ok(tv.email)
     }
 }
