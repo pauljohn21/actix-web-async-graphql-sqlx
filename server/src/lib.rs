@@ -8,11 +8,13 @@ use actix_web::App;
 use actix_web::{guard, HttpServer};
 use anyhow::Context;
 use guard::{Get, Post};
+use sqlx::PgPool;
 
 use gql::ServiceSchema;
 
-use crate::config::configs::{Configs, DatabaseConfig};
+use crate::config::configs::{Configs, CryptoConfig, DatabaseConfig};
 use crate::gql::{graphiql, graphql};
+use crate::security::crypto::CryptoService;
 use crate::web::gql;
 use crate::web::rest::health_check::health_check;
 
@@ -20,8 +22,17 @@ pub mod common;
 pub mod config;
 pub mod domain;
 pub mod repository;
+pub mod security;
 pub mod service;
 pub mod web;
+
+/// 全局的 state
+pub struct State {
+    // 数据库连接池
+    pool: Arc<PgPool>,
+    // 加密服务
+    crypto: Arc<CryptoService>,
+}
 
 /// http server application
 pub struct Application {
@@ -32,11 +43,12 @@ impl Application {
     /// 构建 服务器
     pub async fn build(configs: Arc<Configs>) -> anyhow::Result<Application> {
         // 链接数据库
-        let pool = DatabaseConfig::init(&configs.database).await?;
-
+        let pool = Arc::new(DatabaseConfig::init(&configs.database).await?);
+        let crypto = Arc::new(CryptoConfig::get_crypto_server(&configs.crypto));
+        let state = Arc::new(State { pool, crypto });
         // 初始化 GraphQL schema.
-        let schema = gql::build_schema(pool, &configs.graphql).await;
-        log::info!(r#"初始化 "GraphQL Schema" 完成! "#);
+        let schema = gql::build_schema(state.clone(), &configs.graphql).await;
+        log::info!(r#"初始化 'GraphQL Schema' 完成! "#);
 
         let address = configs.server.get_address();
         let enable = &configs.graphql.graphiql.enable;
@@ -48,7 +60,7 @@ impl Application {
             );
         }
 
-        let server = build_actix_server(configs, address, schema)?;
+        let server = build_actix_server(configs, address, state, schema)?;
 
         Ok(Application { server })
     }
@@ -63,12 +75,14 @@ impl Application {
 fn build_actix_server(
     configs: Arc<Configs>,
     address: String,
+    state: Arc<State>,
     schema: ServiceSchema,
 ) -> anyhow::Result<Server> {
     let server = HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
             .data(configs.clone())
+            .data(state.clone())
             .data(schema.clone())
             .configure(|cfg| register_service(cfg, configs.clone()))
     })

@@ -30,7 +30,7 @@ policy.roller.base = 1
 policy.roller.count = 5
 
 [root]
-level = "info"
+level = "debug"
 appenders = ["stdout", "requests"]
 
 [loggers]

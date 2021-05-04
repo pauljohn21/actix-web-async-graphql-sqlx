@@ -1,3 +1,4 @@
+use crate::security::crypto::CryptoService;
 use anyhow::Context;
 use log::LevelFilter;
 use serde::Deserialize;
@@ -6,6 +7,7 @@ use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, Pool, Postgres};
 use std::env::current_dir;
 use std::path::PathBuf;
+use std::sync::Arc;
 use std::time::Duration;
 
 /// 配置文件目录
@@ -34,6 +36,7 @@ pub struct Configs {
     pub graphql: GraphQlConfig,
     pub database: DatabaseConfig,
     pub log: LogConfig,
+    pub crypto: CryptoConfig,
 }
 
 /// 服务配置
@@ -78,6 +81,29 @@ pub struct DatabaseConfig {
 pub struct LogConfig {
     /// 日志配置文件
     pub file: String,
+}
+
+/// 加密服务相关配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct CryptoConfig {
+    pub hash: HashConfig,
+    pub jwt: JWTConfig,
+}
+
+/// 加密服务相关配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct HashConfig {
+    /// 密码盐
+    pub salt: String,
+    /// 秘钥
+    pub secret: String,
+}
+
+/// jwt相关配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct JWTConfig {
+    /// 秘钥
+    pub secret: String,
 }
 
 impl Configs {
@@ -136,7 +162,7 @@ impl LogConfig {
         let config_dir = get_config_dir()?;
         let result = log4rs::init_file(config_dir.join(&config.file), Default::default())
             .context(format!("初始化日志配置:[{}]失败!", &config.file));
-        log::info!(r#"初始化 '配置文件 日志' 完成"#);
+        log::info!(r#"初始化 '配置文件 日志' 完成!"#);
         result
     }
 }
@@ -157,6 +183,18 @@ impl DatabaseConfig {
             .connect_with(options)
             .await?;
         Ok(pool)
+    }
+}
+
+impl CryptoConfig {
+    /// 获取加密服务
+    pub fn get_crypto_server(&self) -> CryptoService {
+        log::info!("初始化 '加密服务:[CryptoService]' 完成!");
+        CryptoService {
+            hash_salt: Arc::new(self.hash.salt.clone()),
+            hash_secret: Arc::new(self.hash.secret.clone()),
+            jwt_secret: Arc::new(self.jwt.secret.clone()),
+        }
     }
 }
 
