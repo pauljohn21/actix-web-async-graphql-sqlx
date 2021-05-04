@@ -3,13 +3,11 @@ use async_graphql::extensions::{ApolloTracing, Logger};
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptySubscription, Schema};
 use async_graphql_actix_web::{Request, Response};
-use sqlx::PgPool;
 
 use queries::QueryRoot;
 
 use crate::config::configs::{Configs, GraphQlConfig};
 use crate::gql::mutations::MutationRoot;
-use crate::security::crypto::CryptoService;
 use crate::State;
 use std::sync::Arc;
 

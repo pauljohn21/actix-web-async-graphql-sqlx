@@ -7,8 +7,8 @@ use actix_web::web::{resource, ServiceConfig};
 use actix_web::App;
 use actix_web::{guard, HttpServer};
 use anyhow::Context;
-use async_graphql::Context as GraphQLContext;
 use guard::{Get, Post};
+use sqlx::PgPool;
 
 use gql::ServiceSchema;
 
@@ -17,7 +17,6 @@ use crate::gql::{graphiql, graphql};
 use crate::security::crypto::CryptoService;
 use crate::web::gql;
 use crate::web::rest::health_check::health_check;
-use sqlx::{PgPool, Pool, Postgres};
 
 pub mod common;
 pub mod config;

@@ -3,7 +3,6 @@ use crate::domain::users::{TestValidator, Users};
 use crate::service::users::{ExtUsersService, UsersService};
 use crate::State;
 use async_graphql::*;
-use sqlx::PgPool;
 use std::sync::Arc;
 
 /// 定义查询根节点

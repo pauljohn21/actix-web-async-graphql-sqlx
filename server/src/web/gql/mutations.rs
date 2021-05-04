@@ -1,10 +1,9 @@
 use std::sync::Arc;
 
 use async_graphql::*;
-use sqlx::PgPool;
 use validator::Validate;
 
-use crate::security::crypto::{CryptoService, ExtCryptoService};
+use crate::security::crypto::ExtCryptoService;
 use crate::service::users::{ExtUsersService, UsersService};
 use crate::{
     common::error::errors::AppError,
