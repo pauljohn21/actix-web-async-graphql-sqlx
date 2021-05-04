@@ -9,6 +9,8 @@ use queries::QueryRoot;
 
 use crate::config::configs::{Configs, GraphQlConfig};
 use crate::gql::mutations::MutationRoot;
+use crate::security::crypto::CryptoService;
+use crate::State;
 use std::sync::Arc;
 
 pub mod mutations;
@@ -18,14 +20,14 @@ pub mod queries;
 pub type ServiceSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 /// 创建 Schema
-pub async fn build_schema(pool: PgPool, config: &GraphQlConfig) -> ServiceSchema {
+pub async fn build_schema(state: Arc<State>, config: &GraphQlConfig) -> ServiceSchema {
     let builder = Schema::build(
         QueryRoot::default(),
         MutationRoot::default(),
         EmptySubscription,
     )
     .extension(Logger)
-    .data(pool);
+    .data(state);
     if config.tracing.unwrap_or(false) {
         builder.extension(ApolloTracing).finish()
     } else {

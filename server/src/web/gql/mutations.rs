@@ -1,12 +1,16 @@
+use std::sync::Arc;
+
 use async_graphql::*;
 use sqlx::PgPool;
+use validator::Validate;
 
+use crate::security::crypto::{CryptoService, ExtCryptoService};
 use crate::service::users::{ExtUsersService, UsersService};
 use crate::{
     common::error::errors::AppError,
     domain::users::{NewUser, Users},
+    State,
 };
-use validator::Validate;
 
 /// 变更根节点
 #[derive(MergedObject, Default)]
@@ -26,14 +30,15 @@ impl UsersMutation {
         email: String,
         password: String,
     ) -> FieldResult<Users> {
-        let pool = ctx.data::<PgPool>()?;
-        let users = UsersService::create(pool, &username, &email, &password).await?;
+        let pool = ctx.data::<Arc<State>>()?.pool.clone();
+        let users = UsersService::create(&pool, &username, &email, &password).await?;
         Ok(users)
     }
 
     /// 注册用户
     async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<String> {
-        let pool = ctx.data::<PgPool>()?;
+        let pool = ctx.data::<Arc<State>>()?.pool.clone();
+        let crypto = ctx.data::<Arc<State>>()?.crypto.clone();
 
         // 参数校验
         new_user
@@ -41,18 +46,21 @@ impl UsersMutation {
             .map_err(AppError::RequestParameterError.validation_extend())?;
 
         // 检查用户名重复
-        let exists = UsersService::exists_by_username(pool, &new_user.username).await?;
+        let exists = UsersService::exists_by_username(&pool, &new_user.username).await?;
         if exists {
             return Err(AppError::UsernameAlreadyExists.extend());
         }
 
         // 检查邮箱重复
-        let exists = UsersService::exists_by_email(pool, &new_user.email).await?;
+        let exists = UsersService::exists_by_email(&pool, &new_user.email).await?;
         if exists {
             return Err(AppError::UsernameAlreadyExists.extend());
         }
 
-        let token = UsersService::user_register(pool, &new_user).await?;
+        // 密码哈希
+        let encoded = crypto.hash_password(&new_user.password).await?;
+
+        let token = UsersService::user_register(&pool, &new_user, &encoded).await?;
         Ok(token)
     }
 }

@@ -10,7 +10,7 @@ pub struct UsersService;
 #[async_trait]
 pub trait ExtUsersService {
     /// 注册用户
-    async fn user_register(pool: &PgPool, new_user: &NewUser) -> Result<String>;
+    async fn user_register(pool: &PgPool, new_user: &NewUser, encoded: &str) -> Result<String>;
 
     /// 创建用户
     async fn create(
@@ -35,7 +35,7 @@ pub trait ExtUsersService {
 
 #[async_trait]
 impl ExtUsersService for UsersService {
-    async fn user_register(pool: &PgPool, new_user: &NewUser) -> Result<String> {
+    async fn user_register(pool: &PgPool, new_user: &NewUser, encoded: &str) -> Result<String> {
         todo!()
     }
 
