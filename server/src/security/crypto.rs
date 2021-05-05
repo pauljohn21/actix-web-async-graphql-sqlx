@@ -40,12 +40,12 @@ impl ExtCryptoService for CryptoService {
 #[actix_rt::test]
 async fn test_hash_password() {
     let crypto_service = CryptoService {
-        hash_salt: Arc::new("88888888".to_string()),
-        hash_secret: Arc::new("88888881".to_string()),
-        jwt_secret: Arc::new("88888888".to_string()),
+        hash_salt: Arc::new("test_hash_password".to_string()),
+        hash_secret: Arc::new("test_hash_password".to_string()),
+        jwt_secret: Arc::new("test_hash_password".to_string()),
     };
 
-    let pwd = "tiantianxiang";
+    let pwd = "test_hash_password";
     let encoded = crypto_service.hash_password(pwd).await.unwrap();
     let x = crypto_service.verify_password(pwd, &encoded).await.unwrap();
     assert!(x)

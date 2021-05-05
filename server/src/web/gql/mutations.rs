@@ -36,8 +36,8 @@ impl UsersMutation {
 
     /// 注册用户
     async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<String> {
-        let pool = ctx.data::<Arc<State>>()?.pool.clone();
-        let crypto = ctx.data::<Arc<State>>()?.crypto.clone();
+        let pool = State::get_pool(ctx)?;
+        let crypto = State::get_crypto_server(ctx)?;
 
         // 参数校验
         new_user
@@ -59,7 +59,7 @@ impl UsersMutation {
         // 密码哈希
         let encoded = crypto.hash_password(&new_user.password).await?;
 
-        let token = UsersService::user_register(&pool, &new_user, &encoded).await?;
-        Ok(token)
+        let uuid = UsersService::user_register(&pool, &new_user, &encoded).await?;
+        Ok(uuid)
     }
 }

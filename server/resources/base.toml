@@ -5,10 +5,10 @@
 ## 服务名称
 name = "server"
 ## HttpServer 绑定地址
-host = "localhost"
+host = "127.0.0.1"
 ## HttpServer 绑定端口
 port = 8080
-## 路径 非必填 默认/
+## 路径 非必填 默认/ "未实现"
 context_path = "/"
 ## 健康检查 非必填 默认 /health_check
 health_check = "/health_check"
@@ -44,9 +44,12 @@ file = "log4rs.toml"
 
 # 密码加密配置
 [crypto.hash]
+## 用户密码的盐
 salt = "替换为真正key"
+## 用户密码秘钥
 secret = "替换为真正key"
 
 # Token加密
 [crypto.jwt]
+## jsonwebtoken的秘钥
 secret = "替换为真正key"

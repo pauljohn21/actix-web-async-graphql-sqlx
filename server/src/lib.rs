@@ -7,8 +7,9 @@ use actix_web::web::{resource, ServiceConfig};
 use actix_web::App;
 use actix_web::{guard, HttpServer};
 use anyhow::Context;
+use async_graphql::{Context as GraphQLContext, FieldResult};
 use guard::{Get, Post};
-use sqlx::PgPool;
+use sqlx::{PgPool, Pool, Postgres};
 
 use gql::ServiceSchema;
 
@@ -32,6 +33,17 @@ pub struct State {
     pool: Arc<PgPool>,
     // 加密服务
     crypto: Arc<CryptoService>,
+}
+
+impl State {
+    // 通过 GraphQLContext 获取
+    pub fn get_pool(ctx: &GraphQLContext<'_>) -> FieldResult<Arc<Pool<Postgres>>> {
+        Ok(ctx.data::<Arc<State>>()?.pool.clone())
+    }
+
+    pub fn get_crypto_server(ctx: &GraphQLContext<'_>) -> FieldResult<Arc<CryptoService>> {
+        Ok(ctx.data::<Arc<State>>()?.crypto.clone())
+    }
 }
 
 /// http server application
