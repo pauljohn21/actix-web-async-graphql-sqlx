@@ -54,7 +54,7 @@ impl Application {
         let enable = &configs.graphql.graphiql.enable;
         if enable.unwrap_or(false) {
             log::info!(
-                "🚀 GraphQL UI: http://{}{}",
+                "🚀GraphQL UI: http://{}{} 🚀",
                 address,
                 &configs.graphql.graphiql.path
             );
