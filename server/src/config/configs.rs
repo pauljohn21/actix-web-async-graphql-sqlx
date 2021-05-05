@@ -87,7 +87,7 @@ pub struct LogConfig {
 #[derive(Deserialize, Clone, Debug)]
 pub struct CryptoConfig {
     pub hash: HashConfig,
-    pub jwt: JWTConfig,
+    pub jwt: JwtConfig,
 }
 
 /// 加密服务相关配置
@@ -101,7 +101,7 @@ pub struct HashConfig {
 
 /// jwt相关配置
 #[derive(Deserialize, Clone, Debug)]
-pub struct JWTConfig {
+pub struct JwtConfig {
     /// 秘钥
     pub secret: String,
 }
