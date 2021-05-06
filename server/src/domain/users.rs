@@ -15,6 +15,7 @@ pub struct Users {
     pub username: String,
     pub email: String,
     #[graphql(skip)]
+    #[serde(skip_serializing)]
     pub password_hash: String,
     pub nickname: String,
     pub bio: Option<String>,

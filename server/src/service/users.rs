@@ -10,15 +10,8 @@ pub struct UsersService;
 #[async_trait]
 pub trait ExtUsersService {
     /// 注册用户
-    async fn user_register(pool: &PgPool, new_user: &NewUser, encoded: &str) -> Result<String>;
-
-    /// 创建用户
-    async fn create(
-        pool: &PgPool,
-        username: &str,
-        email: &str,
-        password_hash: &str,
-    ) -> Result<Users>;
+    async fn user_register(pool: &PgPool, new_user: &NewUser, password_hash: &str)
+        -> Result<Users>;
 
     /// 根据用户名查询用户
     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>>;
@@ -35,17 +28,12 @@ pub trait ExtUsersService {
 
 #[async_trait]
 impl ExtUsersService for UsersService {
-    async fn user_register(_pool: &PgPool, _new_user: &NewUser, _encoded: &str) -> Result<String> {
-        todo!()
-    }
-
-    async fn create(
+    async fn user_register(
         pool: &PgPool,
-        username: &str,
-        email: &str,
+        new_user: &NewUser,
         password_hash: &str,
     ) -> Result<Users> {
-        UsersRepository::create(pool, username, email, password_hash).await
+        UsersRepository::create(pool, new_user, password_hash).await
     }
 
     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>> {

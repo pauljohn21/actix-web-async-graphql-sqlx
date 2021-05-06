@@ -1,9 +1,9 @@
+use async_graphql::*;
+
 use crate::common::error::errors::AppError;
 use crate::domain::users::{TestValidator, Users};
 use crate::service::users::{ExtUsersService, UsersService};
 use crate::State;
-use async_graphql::*;
-use std::sync::Arc;
 
 /// 定义查询根节点
 #[derive(MergedObject, Default)]
@@ -32,7 +32,7 @@ impl UsersQuery {
         ctx: &Context<'_>,
         username: String,
     ) -> FieldResult<Option<Users>> {
-        let pool = ctx.data::<Arc<State>>()?.pool.clone();
+        let pool = State::get_pool(ctx)?;
         Ok(UsersService::find_by_username(&pool, &username)
             .await
             .map_err(AppError::InternalError.log_extend())?)
@@ -40,7 +40,7 @@ impl UsersQuery {
 
     /// 根据用户名查询用户2
     async fn find_by_username2(&self, ctx: &Context<'_>, username: String) -> FieldResult<Users> {
-        let pool = ctx.data::<Arc<State>>()?.pool.clone();
+        let pool = State::get_pool(ctx)?;
         Ok(UsersService::find_by_username2(&pool, &username)
             .await
             .map_err(AppError::InternalError.log_extend())?)
@@ -48,7 +48,7 @@ impl UsersQuery {
 
     /// 检查用户名是否存在
     async fn exists_by_username(&self, ctx: &Context<'_>, username: String) -> FieldResult<bool> {
-        let pool = ctx.data::<Arc<State>>()?.pool.clone();
+        let pool = State::get_pool(ctx)?;
         Ok(UsersService::exists_by_username(&pool, &username)
             .await
             .map_err(AppError::InternalError.log_extend())?)

@@ -36,11 +36,12 @@ pub struct State {
 }
 
 impl State {
-    // 通过 GraphQLContext 获取
+    // 通过 GraphQLContext 获取 数据库连接池
     pub fn get_pool(ctx: &GraphQLContext<'_>) -> FieldResult<Arc<Pool<Postgres>>> {
         Ok(ctx.data::<Arc<State>>()?.pool.clone())
     }
 
+    // 通过 GraphQLContext 获取 加密服务
     pub fn get_crypto_server(ctx: &GraphQLContext<'_>) -> FieldResult<Arc<CryptoService>> {
         Ok(ctx.data::<Arc<State>>()?.crypto.clone())
     }

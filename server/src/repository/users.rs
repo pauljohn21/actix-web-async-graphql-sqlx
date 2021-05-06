@@ -1,19 +1,15 @@
-use crate::domain::users::Users;
 use anyhow::*;
 use async_trait::async_trait;
 use sqlx::PgPool;
+
+use crate::domain::users::{NewUser, Users};
 
 pub struct UsersRepository;
 
 #[async_trait]
 pub trait ExtUsersRepository {
-    /// 创建用户
-    async fn create(
-        pool: &PgPool,
-        username: &str,
-        email: &str,
-        password_hash: &str,
-    ) -> Result<Users>;
+    /// 注册用户
+    async fn create(pool: &PgPool, new_user: &NewUser, password_hash: &str) -> Result<Users>;
 
     /// 根据用户名查询用户
     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>>;
@@ -30,24 +26,19 @@ pub trait ExtUsersRepository {
 
 #[async_trait]
 impl ExtUsersRepository for UsersRepository {
-    /// 创建用户
-    async fn create(
-        pool: &PgPool,
-        username: &str,
-        email: &str,
-        password_hash: &str,
-    ) -> Result<Users> {
+    async fn create(pool: &PgPool, new_user: &NewUser, password_hash: &str) -> Result<Users> {
         let row = sqlx::query_as!(
             Users,
             //language=sql
-            "INSERT INTO users(username, email, password_hash) VALUES ($1, $2, $3) RETURNING *",
-            username,
-            email,
+            "INSERT INTO users(username, nickname, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING *",
+            &new_user.username,
+            &new_user.nickname,
+            &new_user.email,
             password_hash
         )
-        .fetch_one(pool)
-        .await
-        .context("创建用户")?;
+            .fetch_one(pool)
+            .await
+            .context("创建用户")?;
 
         Ok(row)
     }

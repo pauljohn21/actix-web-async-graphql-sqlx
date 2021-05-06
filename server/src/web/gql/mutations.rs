@@ -1,15 +1,10 @@
-use std::sync::Arc;
-
 use async_graphql::*;
-use validator::Validate;
+use validator::*;
 
+use crate::domain::users::Users;
 use crate::security::crypto::ExtCryptoService;
 use crate::service::users::{ExtUsersService, UsersService};
-use crate::{
-    common::error::errors::AppError,
-    domain::users::{NewUser, Users},
-    State,
-};
+use crate::{common::error::errors::AppError, domain::users::NewUser, State};
 
 /// 变更根节点
 #[derive(MergedObject, Default)]
@@ -21,21 +16,8 @@ pub struct UsersMutation;
 
 #[Object]
 impl UsersMutation {
-    /// 创建用户
-    async fn create_user(
-        &self,
-        ctx: &Context<'_>,
-        username: String,
-        email: String,
-        password: String,
-    ) -> FieldResult<Users> {
-        let pool = ctx.data::<Arc<State>>()?.pool.clone();
-        let users = UsersService::create(&pool, &username, &email, &password).await?;
-        Ok(users)
-    }
-
     /// 注册用户
-    async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<String> {
+    async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<Users> {
         let pool = State::get_pool(ctx)?;
         let crypto = State::get_crypto_server(ctx)?;
 
@@ -53,13 +35,13 @@ impl UsersMutation {
         // 检查邮箱重复
         let exists = UsersService::exists_by_email(&pool, &new_user.email).await?;
         if exists {
-            return Err(AppError::UsernameAlreadyExists.extend());
+            return Err(AppError::EmailAlreadyExists.extend());
         }
 
         // 密码哈希
-        let encoded = crypto.hash_password(&new_user.password).await?;
+        let password_hash = crypto.hash_password(&new_user.password).await?;
 
-        let uuid = UsersService::user_register(&pool, &new_user, &encoded).await?;
-        Ok(uuid)
+        let user = UsersService::user_register(&pool, &new_user, &password_hash).await?;
+        Ok(user)
     }
 }
