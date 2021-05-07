@@ -4,6 +4,7 @@ use validator::*;
 use crate::domain::users::Users;
 use crate::security::crypto::ExtCryptoService;
 use crate::service::users::{ExtUsersService, UsersService};
+use crate::web::gql::GraphqlResult;
 use crate::{common::error::errors::AppError, domain::users::NewUser, State};
 
 /// 变更根节点
@@ -17,7 +18,7 @@ pub struct UsersMutation;
 #[Object]
 impl UsersMutation {
     /// 注册用户
-    async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> FieldResult<Users> {
+    async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> GraphqlResult<Users> {
         let pool = State::get_pool(ctx)?;
         let crypto = State::get_crypto_server(ctx)?;
 

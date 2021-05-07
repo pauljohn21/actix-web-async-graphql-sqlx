@@ -17,6 +17,9 @@ pub mod queries;
 /// 为了代码简洁, 定义 `ServiceSchema`
 pub type ServiceSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
+/// 定义返回
+pub type GraphqlResult<T> = std::result::Result<T, async_graphql::Error>;
+
 /// 创建 Schema
 pub async fn build_schema(state: Arc<State>, config: &GraphQlConfig) -> ServiceSchema {
     let builder = Schema::build(
@@ -24,8 +27,8 @@ pub async fn build_schema(state: Arc<State>, config: &GraphQlConfig) -> ServiceS
         MutationRoot::default(),
         EmptySubscription,
     )
-    .extension(Logger)
-    .data(state);
+    .data(state)
+    .extension(Logger);
     if config.tracing.unwrap_or(false) {
         builder.extension(ApolloTracing).finish()
     } else {

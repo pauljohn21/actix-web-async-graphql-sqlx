@@ -7,7 +7,7 @@ use actix_web::web::{resource, ServiceConfig};
 use actix_web::App;
 use actix_web::{guard, HttpServer};
 use anyhow::Context;
-use async_graphql::{Context as GraphQLContext, FieldResult};
+use async_graphql::Context as GraphQLContext;
 use guard::{Get, Post};
 use sqlx::{PgPool, Pool, Postgres};
 
@@ -17,6 +17,7 @@ use crate::config::configs::{Configs, CryptoConfig, DatabaseConfig};
 use crate::gql::{graphiql, graphql};
 use crate::security::crypto::CryptoService;
 use crate::web::gql;
+use crate::web::gql::GraphqlResult;
 use crate::web::rest::health_check::health_check;
 
 pub mod common;
@@ -37,12 +38,12 @@ pub struct State {
 
 impl State {
     // 通过 GraphQLContext 获取 数据库连接池
-    pub fn get_pool(ctx: &GraphQLContext<'_>) -> FieldResult<Arc<Pool<Postgres>>> {
+    pub fn get_pool(ctx: &GraphQLContext<'_>) -> GraphqlResult<Arc<Pool<Postgres>>> {
         Ok(ctx.data::<Arc<State>>()?.pool.clone())
     }
 
     // 通过 GraphQLContext 获取 加密服务
-    pub fn get_crypto_server(ctx: &GraphQLContext<'_>) -> FieldResult<Arc<CryptoService>> {
+    pub fn get_crypto_server(ctx: &GraphQLContext<'_>) -> GraphqlResult<Arc<CryptoService>> {
         Ok(ctx.data::<Arc<State>>()?.crypto.clone())
     }
 }
