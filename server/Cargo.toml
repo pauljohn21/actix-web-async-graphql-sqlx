@@ -33,3 +33,5 @@ validator = { version = "0.13.0", features = ["derive"] }
 jsonwebtoken = "7.2.0"
 async-trait = "0.1.50"
 rust-argon2 = "0.8.3"
+lazy_static = "1.4.0"
+regex = "1.5.3"

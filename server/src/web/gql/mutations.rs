@@ -18,14 +18,22 @@ pub struct UsersMutation;
 #[Object]
 impl UsersMutation {
     /// 注册用户
-    async fn user_register(&self, ctx: &Context<'_>, new_user: NewUser) -> GraphqlResult<Users> {
-        let pool = State::get_pool(ctx)?;
-        let crypto = State::get_crypto_server(ctx)?;
-
+    async fn user_register(
+        &self,
+        ctx: &Context<'_>,
+        mut new_user: NewUser,
+    ) -> GraphqlResult<Users> {
         // 参数校验
         new_user
             .validate()
             .map_err(AppError::RequestParameterError.validation_extend())?;
+
+        let pool = State::get_pool(ctx)?;
+        let crypto = State::get_crypto_server(ctx)?;
+
+        // 处理为 小写
+        new_user.username.make_ascii_lowercase();
+        new_user.email.make_ascii_lowercase();
 
         // 检查用户名重复
         let exists = UsersService::exists_by_username(&pool, &new_user.username).await?;

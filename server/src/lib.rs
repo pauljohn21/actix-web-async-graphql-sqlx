@@ -28,6 +28,12 @@ pub mod security;
 pub mod service;
 pub mod web;
 
+use regex::Regex;
+
+lazy_static::lazy_static! {
+    static ref EMAIL_REGEX: Regex = Regex::new(r"(@)").unwrap();
+}
+
 /// 全局的 state
 pub struct State {
     // 数据库连接池
