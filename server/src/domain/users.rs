@@ -6,6 +6,7 @@ use serde::Serialize;
 use sqlx::FromRow;
 use uuid::Uuid;
 use validator::Validate;
+use crate::USERNAME_REGEX;
 
 /// 用户模型
 #[derive(SimpleObject, FromRow, Deserialize, Serialize)]
@@ -42,7 +43,7 @@ impl Users {
 /// 用户注册
 #[derive(Serialize, Deserialize, InputObject, Validate)]
 pub struct NewUser {
-    #[validate(length(min = 5, max = 10, message = "用户名不符合{min}到{max}"))]
+    #[validate(regex(path = "USERNAME_REGEX", message = "用户名不符合要求"))]
     pub username: String,
     #[validate(email(message = "邮箱不符合"))]
     pub email: String,

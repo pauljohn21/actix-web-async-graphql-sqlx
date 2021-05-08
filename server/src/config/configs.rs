@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, Pool, Postgres};
-use std::env::current_dir;
+use std::{any::type_name, env::current_dir};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
@@ -182,6 +182,7 @@ impl DatabaseConfig {
             .connect_timeout(Duration::from_secs(2))
             .connect_with(options)
             .await?;
+        log::info!("初始化 '数据库' 完成");
         Ok(pool)
     }
 }
@@ -189,12 +190,13 @@ impl DatabaseConfig {
 impl CryptoConfig {
     /// 获取加密服务
     pub fn get_crypto_server(&self) -> CryptoService {
-        log::info!("初始化 '加密服务:[CryptoService]' 完成!");
-        CryptoService {
+        let crypto = CryptoService {
             hash_salt: Arc::new(self.hash.salt.clone()),
             hash_secret: Arc::new(self.hash.secret.clone()),
             jwt_secret: Arc::new(self.jwt.secret.clone()),
-        }
+        };
+        log::info!("初始化 '加密服务:[{}]' 完成!", type_name::<CryptoService>());
+        crypto
     }
 }
 

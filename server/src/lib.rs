@@ -32,6 +32,7 @@ use regex::Regex;
 
 lazy_static::lazy_static! {
     static ref EMAIL_REGEX: Regex = Regex::new(r"(@)").unwrap();
+    static ref USERNAME_REGEX: Regex = Regex::new(r"^[a-zA-Z0-9_-]{4,16}$").unwrap();
 }
 
 /// 全局的 state
@@ -62,6 +63,10 @@ pub struct Application {
 impl Application {
     /// 构建 服务器
     pub async fn build(configs: Arc<Configs>) -> anyhow::Result<Application> {
+        // 初始化静态常量
+        lazy_static::initialize(&EMAIL_REGEX);
+        lazy_static::initialize(&USERNAME_REGEX);
+        log::info!("初始化 '静态常量' 完成");
         // 链接数据库
         let pool = Arc::new(DatabaseConfig::init(&configs.database).await?);
         let crypto = Arc::new(CryptoConfig::get_crypto_server(&configs.crypto));
@@ -74,7 +79,7 @@ impl Application {
         let enable = &configs.graphql.graphiql.enable;
         if enable.unwrap_or(false) {
             log::info!(
-                "🚀GraphQL UI: http://{}{} 🚀",
+                "🚀GraphQL UI: http://{}{}",
                 address,
                 &configs.graphql.graphiql.path
             );
@@ -135,4 +140,18 @@ fn register_service(cfg: &mut ServiceConfig, configs: Arc<Configs>) {
                 .to(graphiql),
         );
     }
+}
+
+#[test]
+fn test_email_regex() {
+    lazy_static::initialize(&EMAIL_REGEX);
+    let is_email = EMAIL_REGEX.is_match("text@test.com");
+    assert!(is_email);
+}
+
+#[test]
+fn test_username_regex() {
+    lazy_static::initialize(&USERNAME_REGEX);
+    let is_username = USERNAME_REGEX.is_match("liteng001");
+    assert!(is_username);
 }
