@@ -1,3 +1,4 @@
+use crate::USERNAME_REGEX;
 use async_graphql::validators::Email;
 use async_graphql::*;
 use chrono::{DateTime, Local, Utc};
@@ -6,7 +7,6 @@ use serde::Serialize;
 use sqlx::FromRow;
 use uuid::Uuid;
 use validator::Validate;
-use crate::USERNAME_REGEX;
 
 /// 用户模型
 #[derive(SimpleObject, FromRow, Deserialize, Serialize)]

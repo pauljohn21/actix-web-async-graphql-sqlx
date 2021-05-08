@@ -5,10 +5,10 @@ use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, Pool, Postgres};
-use std::{any::type_name, env::current_dir};
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
+use std::{any::type_name, env::current_dir};
 
 /// 配置文件目录
 pub const CONFIG_PATH: &str = "resources/";
