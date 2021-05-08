@@ -17,10 +17,10 @@
 - [x] 健康检查  health_check & ping
 - [x] 配置文件控制开启/关闭  ApolloTracing 插件  
 - [x] sqlx日志级别单独控制
-- [ ] 用户注册, 密码salt与hash
+- [x] 用户注册, 密码salt与hash
 - [x] 入参校验 基于 validator, 通过自定义方法适配 graphql的result.
 - [ ] 用户登录
-- [ ] JWT鉴权
+- [ ] JWT鉴权 & 接口登录鉴权 & 用户角色鉴权?
 - [ ] 修改密码
 - [ ] 个人资料更新
 
