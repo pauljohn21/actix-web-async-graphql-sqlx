@@ -53,7 +53,7 @@ impl UsersQuery {
         // 判断用户是否存在
         let users = match users {
             Some(users) => users,
-            None => Err(AppError::UsernameOrPasswordError.extend())?,
+            None => return Err(AppError::UsernameOrPasswordError.extend()),
         };
 
         // 验证密码是否正确
@@ -66,9 +66,9 @@ impl UsersQuery {
         // 处理验证结果
         match verify {
             // 验证出现异常
-            Err(_) => Err(AppError::InternalError.extend())?,
+            Err(_) => return Err(AppError::InternalError.extend()),
             // 验证不通过
-            Ok(verify) if !verify => Err(AppError::UsernameOrPasswordError.extend())?,
+            Ok(verify) if !verify => return Err(AppError::UsernameOrPasswordError.extend()),
             // 验证通过
             _ => log::info!("用户: [{}] 登录成功", &users.username),
         };
