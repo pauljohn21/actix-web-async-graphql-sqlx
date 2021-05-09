@@ -48,5 +48,5 @@ async fn test_hash_password() {
     let pwd = "test_hash_password";
     let encoded = crypto_service.hash_password(pwd).await.unwrap();
     let x = crypto_service.verify_password(pwd, &encoded).await.unwrap();
-    assert!(x)
+    assert!(x);
 }

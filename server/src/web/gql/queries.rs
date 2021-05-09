@@ -1,10 +1,14 @@
 use async_graphql::*;
+use validator::Validate;
 
-use crate::common::error::errors::AppError;
-use crate::domain::users::{TestValidator, Users};
 use crate::service::users::{ExtUsersService, UsersService};
 use crate::web::gql::GraphqlResult;
 use crate::State;
+use crate::{common::error::errors::AppError, domain::users::LoginVM, EMAIL_REGEX};
+use crate::{
+    domain::users::{TestValidator, Users},
+    security::crypto::ExtCryptoService,
+};
 
 /// 定义查询根节点
 #[derive(MergedObject, Default)]
@@ -27,6 +31,53 @@ impl PingQuery {
 
 #[Object]
 impl UsersQuery {
+    /// 用户登录
+    async fn user_sign_in(&self, ctx: &Context<'_>, vm: LoginVM) -> GraphqlResult<String> {
+        // 参数校验
+        vm.validate()
+            .map_err(AppError::RequestParameterError.validation_extend())?;
+        // 把登录名称处理为小写
+        let login = vm.login.to_lowercase();
+        // 先判断用户登录方式
+        let is_email_login = EMAIL_REGEX.is_match(&login);
+
+        // 获取数据库连接池
+        let pool = State::get_pool(ctx)?;
+
+        let users = if is_email_login {
+            UsersService::find_by_email(&pool, &login).await?
+        } else {
+            UsersService::find_by_username(&pool, &login).await?
+        };
+
+        // 判断用户是否存在
+        let users = match users {
+            Some(users) => users,
+            None => Err(AppError::UsernameOrPasswordError.extend())?,
+        };
+
+        // 验证密码是否正确
+        let crypto = State::get_crypto_server(ctx)?;
+
+        let verify = crypto
+            .verify_password(&vm.password, &users.password_hash)
+            .await;
+
+        // 处理验证结果
+        match verify {
+            // 验证出现异常
+            Err(_) => Err(AppError::InternalError.extend())?,
+            // 验证不通过
+            Ok(verify) if !verify => Err(AppError::UsernameOrPasswordError.extend())?,
+            // 验证通过
+            _ => log::info!("用户: [{}] 登录成功", &users.username),
+        };
+
+        // todo!("生成jsonwebtoken并返回");
+
+        Ok("生成jsonwebtoken并返回".to_string())
+    }
+
     /// 根据用户名查询用户
     async fn find_by_username(
         &self,

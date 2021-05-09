@@ -19,6 +19,9 @@ pub enum AppError {
 
     #[error("请求参数错误")]
     RequestParameterError,
+
+    #[error("用户名或密码错误")]
+    UsernameOrPasswordError,
 }
 
 impl AppError {
@@ -56,10 +59,24 @@ impl ErrorExtensions for AppError {
                 // 在返回给客户端的新增中新增了 code 业务状态码, 作为业务状态梳理
                 AppError::InternalError => e.set("code", "B0001"),
                 AppError::ClientError => e.set("code", "A0001"),
-                AppError::UsernameAlreadyExists => e.set("code", "A0002"),
-                AppError::EmailAlreadyExists => e.set("code", "A0154"),
-                AppError::RequestParameterError => e.set("code", "A0001"),
+                AppError::RequestParameterError => e.set("code", "A0002"),
+                AppError::UsernameAlreadyExists => e.set("code", "A0003"),
+                AppError::EmailAlreadyExists => e.set("code", "A0004"),
+                AppError::UsernameOrPasswordError => e.set("code", "A0005"),
             }
         })
+    }
+
+    fn extend_with<C>(self, cb: C) -> AgError
+    where
+        C: FnOnce(&Self, &mut async_graphql::ErrorExtensionValues),
+    {
+        let message = self.extend().message;
+        let mut extensions = self.extend().extensions.unwrap_or_default();
+        cb(&self, &mut extensions);
+        AgError {
+            message,
+            extensions: Some(extensions),
+        }
     }
 }

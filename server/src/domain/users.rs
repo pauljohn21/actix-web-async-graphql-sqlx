@@ -53,6 +53,15 @@ pub struct NewUser {
     pub nickname: String,
 }
 
+/// 用户注册
+#[derive(Serialize, Deserialize, InputObject, Validate)]
+pub struct LoginVM {
+    #[validate(length(min = 1, message = "登录名称不符合要求"))]
+    pub login: String,
+    #[validate(length(min = 6, message = "密码不符合"))]
+    pub password: String,
+}
+
 /// 测试Graphql的字段校验器
 #[derive(Serialize, Deserialize, InputObject)]
 pub struct TestValidator {

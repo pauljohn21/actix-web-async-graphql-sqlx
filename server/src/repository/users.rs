@@ -14,6 +14,9 @@ pub trait ExtUsersRepository {
     /// 根据用户名查询用户
     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>>;
 
+    /// 根据邮箱查询查询用户
+    async fn find_by_email(pool: &PgPool, email: &str) -> Result<Option<Users>>;
+
     /// 根据用户名查询用户2
     async fn find_by_username2(pool: &PgPool, username: &str) -> Result<Users>;
 
@@ -50,6 +53,20 @@ impl ExtUsersRepository for UsersRepository {
             //language=sql
             "SELECT * FROM users WHERE username = $1",
             username
+        )
+        .fetch_optional(pool)
+        .await
+        .context("查询用户")?;
+
+        Ok(row)
+    }
+
+    async fn find_by_email(pool: &PgPool, email: &str) -> Result<Option<Users>> {
+        let row = sqlx::query_as!(
+            Users,
+            //language=sql
+            "SELECT * FROM users WHERE email = $1",
+            email
         )
         .fetch_optional(pool)
         .await

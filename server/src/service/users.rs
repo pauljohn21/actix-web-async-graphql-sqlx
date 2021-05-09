@@ -16,6 +16,9 @@ pub trait ExtUsersService {
     /// 根据用户名查询用户
     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>>;
 
+    /// 根据邮箱查询查询用户
+    async fn find_by_email(pool: &PgPool, email: &str) -> Result<Option<Users>>;
+
     /// 根据用户名查询用户2
     async fn find_by_username2(pool: &PgPool, username: &str) -> Result<Users>;
 
@@ -38,6 +41,10 @@ impl ExtUsersService for UsersService {
 
     async fn find_by_username(pool: &PgPool, username: &str) -> Result<Option<Users>> {
         UsersRepository::find_by_username(pool, username).await
+    }
+
+    async fn find_by_email(pool: &PgPool, email: &str) -> Result<Option<Users>> {
+        UsersRepository::find_by_email(pool, email).await
     }
 
     async fn find_by_username2(pool: &PgPool, username: &str) -> Result<Users> {
