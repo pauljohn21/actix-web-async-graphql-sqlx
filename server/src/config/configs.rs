@@ -5,10 +5,9 @@ use serde::Deserialize;
 use serde_aux::field_attributes::deserialize_number_from_string;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
 use sqlx::{ConnectOptions, Pool, Postgres};
-use std::path::PathBuf;
 use std::sync::Arc;
-use std::time::Duration;
 use std::{any::type_name, env::current_dir};
+use std::{path::PathBuf, time::Duration};
 
 /// 配置文件目录
 pub const CONFIG_PATH: &str = "resources/";
@@ -37,73 +36,6 @@ pub struct Configs {
     pub database: DatabaseConfig,
     pub log: LogConfig,
     pub crypto: CryptoConfig,
-}
-
-/// 服务配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct ServerConfig {
-    pub name: String,
-    pub host: String,
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub port: u16,
-    pub context_path: Option<String>,
-    pub health_check: Option<String>,
-}
-
-/// Graphql配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct GraphQlConfig {
-    pub path: String,
-    pub tracing: Option<bool>,
-    pub graphiql: GraphiQlConfig,
-}
-
-/// Graphiql配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct GraphiQlConfig {
-    pub path: String,
-    pub enable: Option<bool>,
-}
-
-/// 数据库配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct DatabaseConfig {
-    pub username: String,
-    pub password: String,
-    #[serde(deserialize_with = "deserialize_number_from_string")]
-    pub port: u16,
-    pub host: String,
-    pub database_name: String,
-}
-
-/// 日志相关配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct LogConfig {
-    /// 日志配置文件
-    pub file: String,
-}
-
-/// 加密服务相关配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct CryptoConfig {
-    pub hash: HashConfig,
-    pub jwt: JwtConfig,
-}
-
-/// 加密服务相关配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct HashConfig {
-    /// 密码盐
-    pub salt: String,
-    /// 秘钥
-    pub secret: String,
-}
-
-/// jwt相关配置
-#[derive(Deserialize, Clone, Debug)]
-pub struct JwtConfig {
-    /// 秘钥
-    pub secret: String,
 }
 
 impl Configs {
@@ -140,6 +72,17 @@ impl Configs {
     }
 }
 
+/// 服务配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct ServerConfig {
+    pub name: String,
+    pub host: String,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
+    pub port: u16,
+    pub context_path: Option<String>,
+    pub health_check: Option<String>,
+}
+
 impl ServerConfig {
     /// 获取服务地址
     pub fn get_address(&self) -> String {
@@ -156,20 +99,35 @@ impl ServerConfig {
     }
 }
 
-impl LogConfig {
-    /// 初始化日志配置
-    pub fn init(config: &LogConfig) -> anyhow::Result<()> {
-        let config_dir = get_config_dir()?;
-        let result = log4rs::init_file(config_dir.join(&config.file), Default::default())
-            .context(format!("初始化日志配置:[{}]失败!", &config.file));
-        log::info!(r#"初始化 '配置文件 日志' 完成!"#);
-        result
-    }
+/// Graphql配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct GraphQlConfig {
+    pub path: String,
+    pub tracing: Option<bool>,
+    pub graphiql: GraphiQlConfig,
+}
+
+/// Graphiql配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct GraphiQlConfig {
+    pub path: String,
+    pub enable: Option<bool>,
+}
+
+/// 数据库配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct DatabaseConfig {
+    pub username: String,
+    pub password: String,
+    #[serde(deserialize_with = "deserialize_number_from_string")]
+    pub port: u16,
+    pub host: String,
+    pub database_name: String,
 }
 
 impl DatabaseConfig {
     /// 初始化数据库连接池
-    pub async fn init(config: &DatabaseConfig) -> anyhow::Result<Pool<Postgres>> {
+    pub async fn init(config: &DatabaseConfig) -> anyhow::Result<Arc<Pool<Postgres>>> {
         let mut options = PgConnectOptions::new()
             .username(&config.username)
             .password(&config.password)
@@ -183,20 +141,86 @@ impl DatabaseConfig {
             .connect_with(options)
             .await?;
         log::info!("初始化 '数据库' 完成");
-        Ok(pool)
+        Ok(Arc::new(pool))
     }
+}
+
+/// 日志相关配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct LogConfig {
+    /// 日志配置文件
+    pub file: String,
+}
+
+impl LogConfig {
+    /// 初始化日志配置
+    pub fn init(config: &LogConfig) -> anyhow::Result<()> {
+        let config_dir = get_config_dir()?;
+        let result = log4rs::init_file(config_dir.join(&config.file), Default::default())
+            .context(format!("初始化日志配置:[{}]失败!", &config.file));
+        log::info!(r#"初始化 '配置文件 日志' 完成!"#);
+        result
+    }
+}
+
+/// 加密服务相关配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct CryptoConfig {
+    pub hash: HashConfig,
+    pub jwt: JwtConfig,
+}
+
+/// 加密服务相关配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct HashConfig {
+    /// 密码盐
+    pub salt: String,
+    /// 秘钥
+    pub secret: String,
+}
+
+/// jwt相关配置
+#[derive(Deserialize, Clone, Debug)]
+pub struct JwtConfig {
+    /// 秘钥
+    pub secret: String,
+    /// 访问token过期时间
+    #[serde(with = "humantime_serde", default)]
+    pub access_expires: Option<Duration>,
+    /// 刷新token过期时间
+    #[serde(with = "humantime_serde", default)]
+    pub refash_expires: Option<Duration>,
+    /// 签发人
+    #[serde(default = "default_issuer")]
+    pub issuer: String,
+}
+
+/// 签发人默认值
+fn default_issuer() -> String {
+    "Server".to_string()
 }
 
 impl CryptoConfig {
     /// 获取加密服务
-    pub fn get_crypto_server(&self) -> CryptoService {
+    pub fn get_crypto_server(&self) -> Arc<CryptoService> {
         let crypto = CryptoService {
             hash_salt: Arc::new(self.hash.salt.clone()),
             hash_secret: Arc::new(self.hash.secret.clone()),
             jwt_secret: Arc::new(self.jwt.secret.clone()),
+            access_expires: Arc::new(
+                self.jwt
+                    .access_expires
+                    .unwrap_or(Duration::from_secs(30 * 60)),
+            ),
+            refash_expires: Arc::new(
+                self.jwt
+                    .refash_expires
+                    .unwrap_or(Duration::from_secs(7 * 30 * 60)),
+            ),
+            issuer: Arc::new(self.jwt.issuer.clone()),
         };
         log::info!("初始化 '加密服务:[{}]' 完成!", type_name::<CryptoService>());
-        crypto
+        Arc::new(crypto)
     }
 }
 

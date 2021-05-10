@@ -68,8 +68,8 @@ impl Application {
         lazy_static::initialize(&USERNAME_REGEX);
         log::info!("初始化 '静态常量' 完成");
         // 链接数据库
-        let pool = Arc::new(DatabaseConfig::init(&configs.database).await?);
-        let crypto = Arc::new(CryptoConfig::get_crypto_server(&configs.crypto));
+        let pool = DatabaseConfig::init(&configs.database).await?;
+        let crypto = CryptoConfig::get_crypto_server(&configs.crypto);
         let state = Arc::new(State { pool, crypto });
         // 初始化 GraphQL schema.
         let schema = gql::build_schema(state.clone(), &configs.graphql).await;

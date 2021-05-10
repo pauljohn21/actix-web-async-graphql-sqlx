@@ -48,7 +48,7 @@ impl UsersMutation {
         }
 
         // 密码哈希
-        let password_hash = crypto.hash_password(&new_user.password).await?;
+        let password_hash = crypto.generate_password_hash(&new_user.password).await?;
 
         let user = UsersService::user_register(&pool, &new_user, &password_hash).await?;
         Ok(user)
