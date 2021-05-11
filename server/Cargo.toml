@@ -33,7 +33,6 @@ rust-argon2 = "0.8.3"
 serde = "1.0.125"
 serde-aux = "2.2.0"
 serde_json = "1.0.64"
-server = { path = "." }
 sqlx = {version = "0.4.2", features = ["runtime-actix-native-tls", "uuid", "postgres", "chrono"]}
 thiserror = "1.0.24"
 uuid = {version = "0.8.2", features = ["serde", "v4"]}
