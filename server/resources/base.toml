@@ -47,9 +47,9 @@ file = "log4rs.toml"
 ## 用户密码的盐
 salt = "替换为真正key"
 ## 用户密码秘钥
-secret = "替换为真正key"
+secret = "your-256-bit-secret"
 
 # Token加密
 [crypto.jwt]
 ## jsonwebtoken的秘钥
-secret = "替换为真正key"
+secret = "your-256-bit-secret"
