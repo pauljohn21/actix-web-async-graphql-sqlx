@@ -1,16 +1,14 @@
 use anyhow::{Context, Result};
 use argon2::Config;
 use async_trait::async_trait;
-use std::time::Duration;
-use jsonwebtoken::Header;
+use chrono::{Duration, Utc};
+use jsonwebtoken::{EncodingKey, Header};
 use serde::Deserialize;
 use serde::Serialize;
 use std::sync::Arc;
+use uuid::Uuid;
 
-use crate::domain::users::Users;
-
-
-
+#[derive(Debug)]
 pub struct CryptoService {
     pub hash_salt: Arc<String>,
     pub hash_secret: Arc<String>,
@@ -19,8 +17,6 @@ pub struct CryptoService {
     pub refash_expires: Arc<Duration>,
     pub issuer: Arc<String>,
 }
-
-
 #[async_trait]
 pub trait ExtCryptoService {
     /// 计算密码哈希
@@ -30,7 +26,7 @@ pub trait ExtCryptoService {
     async fn verify_password(&self, password: &str, password_hash: &str) -> Result<bool>;
 
     /// 生成jwt
-    async fn generate_jwt(&self, user: &Users) -> Result<String>;
+    async fn generate_jwt(&self, user_id: Uuid) -> Result<(String, String)>;
 
     // 验证jwt
     // async fn verify_jwt(&self, token: &str) -> Result<bool>;
@@ -38,12 +34,13 @@ pub trait ExtCryptoService {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct Claims {
-    exp: usize,  // 必填（验证中的defaultate_exp默认为true）。到期时间（以UTC时间戳记）
-    iat: usize,  // 可选 签发时间（以UTC时间戳记）
+    exp: i64,    // 必填（验证中的defaultate_exp默认为true）。到期时间（以UTC时间戳记）
+    iat: i64,    // 可选 签发时间（以UTC时间戳记）
     iss: String, // 可选 签发人
-    nbf: usize,  // 可选 生效时间（以UTC时间戳记）
+    nbf: i64,    // 可选 生效时间（以UTC时间戳记）
     sub: String, // 可选 用户
 }
+
 #[async_trait]
 impl ExtCryptoService for CryptoService {
     /// 计算密码哈希
@@ -62,34 +59,66 @@ impl ExtCryptoService for CryptoService {
         argon2::verify_encoded_ext(encoded, pwd, secret, &[]).context("验证密码哈希异常!")
     }
 
-    async fn generate_jwt(&self, user: &Users) -> Result<String> {
-        let secret = self.jwt_secret.clone();
+    /// 生成jwt (access_token, refash_token)
+    async fn generate_jwt(&self, user_id: Uuid) -> Result<(String, String)> {
+        let secret = &EncodingKey::from_secret(self.jwt_secret.as_bytes());
+        let iss = self.issuer.to_string();
+        let expires = *self.access_expires;
 
-        let user_id = user.id.to_string();
+        let sub = user_id.to_string();
         let header = Header::default();
-        
-        // let claims = Claims {
-        //     exp: (),
-        //     iat: (),
-        //     iss: (),
-        //     nbf: (),
-        //     sub: (),
-        // };
+        let now = Utc::now();
+        let exp = Utc::now() + expires;
+        let claims = Claims {
+            exp: exp.timestamp(),
+            iat: now.timestamp(),
+            nbf: now.timestamp(),
+            iss,
+            sub,
+        };
+        let access_token = jsonwebtoken::encode(&header, &claims, secret)?;
 
-        todo!()
+        let expires = *self.refash_expires;
+        let exp = Utc::now() + expires;
+        let claims = Claims {
+            exp: exp.timestamp(),
+            ..claims
+        };
+        let refash_token = jsonwebtoken::encode(&header, &claims, secret)?;
+        Ok((access_token, refash_token))
     }
 }
 
-// #[actix_rt::test]
-// async fn test_generate_password_hash() {
-//     let crypto_service = CryptoService {
-//         hash_salt: Arc::new("test_generate_password_hash".to_string()),
-//         hash_secret: Arc::new("test_generate_password_hash".to_string()),
-//         jwt_secret: Arc::new("test_generate_password_hash".to_string()),
-//     };
+#[actix_rt::test]
+async fn test_generate_password_hash() {
+    let crypto_service = CryptoService {
+        hash_salt: Arc::new("test_generate_password_hash".to_string()),
+        hash_secret: Arc::new("test_generate_password_hash".to_string()),
+        jwt_secret: Arc::new("test_generate_password_hash".to_string()),
+        access_expires: Arc::new(Duration::minutes(30)),
+        refash_expires: Arc::new(Duration::days(7)),
+        issuer: Arc::new("test".to_string()),
+    };
 
-//     let pwd = "test_generate_password_hash";
-//     let encoded = crypto_service.generate_password_hash(pwd).await.unwrap();
-//     let x = crypto_service.verify_password(pwd, &encoded).await.unwrap();
-//     assert!(x);
-// }
+    let pwd = "test_generate_password_hash";
+    let encoded = crypto_service.generate_password_hash(pwd).await.unwrap();
+    let x = crypto_service.verify_password(pwd, &encoded).await.unwrap();
+    assert!(x);
+}
+
+#[actix_rt::test]
+async fn test_generate_jwt() {
+    let crypto_service = CryptoService {
+        hash_salt: Arc::new("test_generate_password_hash".to_string()),
+        hash_secret: Arc::new("test_generate_password_hash".to_string()),
+        jwt_secret: Arc::new("your-256-bit-secret".to_string()),
+        access_expires: Arc::new(Duration::minutes(30)),
+        refash_expires: Arc::new(Duration::days(7)),
+        issuer: Arc::new("test".to_string()),
+    };
+
+    let (a, r) = crypto_service.generate_jwt(Uuid::new_v4()).await.unwrap();
+    println!("{}", a);
+    println!("{}", r);
+    assert_eq!(2, 1 + 1);
+}
