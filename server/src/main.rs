@@ -8,7 +8,7 @@ async fn main() -> anyhow::Result<()> {
     let instant = Instant::now();
     // 初始化配置
     let configs = Configs::init_config()?;
-
+    
     // 初始日志
     LogConfig::init(&configs.log)?;
 

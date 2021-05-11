@@ -203,20 +203,22 @@ fn default_issuer() -> String {
 impl CryptoConfig {
     /// 获取加密服务
     pub fn get_crypto_server(&self) -> Arc<CryptoService> {
+        let access_expires = self
+            .jwt
+            .access_expires
+            .unwrap_or(Duration::from_secs(30 * 60));
+
+        let refash_expires = self
+            .jwt
+            .refash_expires
+            .unwrap_or(Duration::from_secs(7 * 30 * 60));
+
         let crypto = CryptoService {
             hash_salt: Arc::new(self.hash.salt.clone()),
             hash_secret: Arc::new(self.hash.secret.clone()),
             jwt_secret: Arc::new(self.jwt.secret.clone()),
-            access_expires: Arc::new(
-                self.jwt
-                    .access_expires
-                    .unwrap_or(Duration::from_secs(30 * 60)),
-            ),
-            refash_expires: Arc::new(
-                self.jwt
-                    .refash_expires
-                    .unwrap_or(Duration::from_secs(7 * 30 * 60)),
-            ),
+            access_expires: Arc::new(chrono::Duration::from_std(access_expires).unwrap()),
+            refash_expires: Arc::new(chrono::Duration::from_std(refash_expires).unwrap()),
             issuer: Arc::new(self.jwt.issuer.clone()),
         };
         log::info!("初始化 '加密服务:[{}]' 完成!", type_name::<CryptoService>());
