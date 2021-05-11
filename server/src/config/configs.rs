@@ -206,12 +206,12 @@ impl CryptoConfig {
         let access_expires = self
             .jwt
             .access_expires
-            .unwrap_or(Duration::from_secs(30 * 60));
+            .unwrap_or_else(|| Duration::from_secs(30 * 60));
 
         let refash_expires = self
             .jwt
             .refash_expires
-            .unwrap_or(Duration::from_secs(7 * 30 * 60));
+            .unwrap_or_else(|| Duration::from_secs(30 * 60));
 
         let crypto = CryptoService {
             hash_salt: Arc::new(self.hash.salt.clone()),
