@@ -1,7 +1,7 @@
 use crate::USERNAME_REGEX;
 use async_graphql::validators::Email;
 use async_graphql::*;
-use chrono::{DateTime, Duration, Local, Utc};
+use chrono::{DateTime, Local, Utc};
 use serde::Deserialize;
 use serde::Serialize;
 use sqlx::FromRow;
