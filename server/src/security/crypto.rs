@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use argon2::Config;
 use async_trait::async_trait;
 use chrono::{Duration, Utc};
-use jsonwebtoken::{EncodingKey, Header};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation, decode};
 use serde::Deserialize;
 use serde::Serialize;
 use std::sync::Arc;
@@ -29,11 +29,11 @@ pub trait ExtCryptoService {
     async fn generate_jwt(&self, user_id: Uuid) -> Result<(String, String)>;
 
     // 验证jwt
-    // async fn verify_jwt(&self, token: &str) -> Result<bool>;
+    async fn verify_jwt(&self, token: &str) -> Result<TokenData<Claims>>;
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct Claims {
+pub struct Claims {
     exp: i64,    // 必填（验证中的defaultate_exp默认为true）。到期时间（以UTC时间戳记）
     iat: i64,    // 可选 签发时间（以UTC时间戳记）
     iss: String, // 可选 签发人
@@ -87,6 +87,11 @@ impl ExtCryptoService for CryptoService {
         let refash_token = jsonwebtoken::encode(&header, &claims, secret)?;
         Ok((access_token, refash_token))
     }
+
+    async fn verify_jwt(&self, token: &str) -> Result<TokenData<Claims>> {
+        let secret = &DecodingKey::from_secret(self.jwt_secret.as_bytes());
+        Ok(decode::<Claims>(token, secret, &Validation::default())?)
+    }
 }
 
 #[actix_rt::test]
@@ -107,7 +112,7 @@ async fn test_generate_password_hash() {
 }
 
 #[actix_rt::test]
-async fn test_generate_jwt() {
+async fn test_jwt() {
     let crypto_service = CryptoService {
         hash_salt: Arc::new("test_generate_password_hash".to_string()),
         hash_secret: Arc::new("test_generate_password_hash".to_string()),
@@ -118,7 +123,8 @@ async fn test_generate_jwt() {
     };
 
     let (a, r) = crypto_service.generate_jwt(Uuid::new_v4()).await.unwrap();
-    println!("{}", a);
-    println!("{}", r);
-    assert_eq!(2, 1 + 1);
+    let verify = crypto_service.verify_jwt(a.as_str()).await.is_ok();
+    assert!(verify);
+    let verify = crypto_service.verify_jwt(r.as_str()).await.is_ok();
+    assert!(verify);
 }
