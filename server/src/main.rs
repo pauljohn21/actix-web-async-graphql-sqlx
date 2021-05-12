@@ -1,7 +1,6 @@
 use actix_web::rt::time::Instant;
 use server::config::configs::{Configs, LogConfig};
 use server::Application;
-use std::sync::Arc;
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
@@ -13,7 +12,7 @@ async fn main() -> anyhow::Result<()> {
     LogConfig::init(&configs.log)?;
 
     // 初始化服务器
-    let application = Application::build(Arc::new(configs)).await?;
+    let application = Application::build(configs).await?;
 
     log::info!("🎉Started Application in {:.3?}", instant.elapsed());
     // 启动服务器
