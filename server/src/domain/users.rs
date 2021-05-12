@@ -1,7 +1,7 @@
 use crate::USERNAME_REGEX;
 use async_graphql::validators::Email;
 use async_graphql::*;
-use chrono::{DateTime, Local, Utc};
+use chrono::{DateTime, Duration, Local, Utc};
 use serde::Deserialize;
 use serde::Serialize;
 use sqlx::FromRow;
@@ -67,4 +67,12 @@ pub struct LoginVM {
 pub struct TestValidator {
     #[graphql(validator(Email))]
     pub email: String,
+}
+
+/// 用户登录token结构体
+#[derive(SimpleObject)]
+pub struct UsersToken {
+    pub access_token: String,
+    pub refash_token: String,
+    pub expires: i64,
 }

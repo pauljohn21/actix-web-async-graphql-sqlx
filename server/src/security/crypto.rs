@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use argon2::Config;
 use chrono::{Duration, Utc};
-use jsonwebtoken::{decode, DecodingKey, EncodingKey, Header, TokenData, Validation};
+use jsonwebtoken::{DecodingKey, EncodingKey, Header, TokenData, Validation};
 use serde::Deserialize;
 use serde::Serialize;
 use std::sync::Arc;
@@ -44,7 +44,7 @@ impl CryptoService {
     }
 
     /// 生成jwt (access_token, refash_token)
-    pub async fn generate_jwt(&self, user_id: Uuid) -> Result<(String, String)> {
+    pub async fn generate_jwt(&self, user_id: &Uuid) -> Result<(String, String, Duration)> {
         let secret = &EncodingKey::from_secret(self.jwt_secret.as_bytes());
         let iss = self.issuer.to_string();
         let expires = *self.access_expires;
@@ -52,7 +52,7 @@ impl CryptoService {
         let sub = user_id.to_string();
         let header = Header::default();
         let now = Utc::now();
-        let exp = Utc::now() + expires;
+        let exp = now + expires;
         let claims = Claims {
             exp: exp.timestamp(),
             iat: now.timestamp(),
@@ -63,18 +63,22 @@ impl CryptoService {
         let access_token = jsonwebtoken::encode(&header, &claims, secret)?;
 
         let expires = *self.refash_expires;
-        let exp = Utc::now() + expires;
+        let exp = now + expires;
         let claims = Claims {
             exp: exp.timestamp(),
             ..claims
         };
         let refash_token = jsonwebtoken::encode(&header, &claims, secret)?;
-        Ok((access_token, refash_token))
+        Ok((access_token, refash_token, expires))
     }
 
     pub async fn verify_jwt(&self, token: &str) -> Result<TokenData<Claims>> {
         let secret = &DecodingKey::from_secret(self.jwt_secret.as_bytes());
-        Ok(decode::<Claims>(token, secret, &Validation::default())?)
+        Ok(jsonwebtoken::decode::<Claims>(
+            token,
+            secret,
+            &Validation::default(),
+        )?)
     }
 }
 
@@ -106,7 +110,7 @@ async fn test_jwt() {
         issuer: Arc::new("test".to_string()),
     };
 
-    let (a, r) = crypto_service.generate_jwt(Uuid::new_v4()).await.unwrap();
+    let (a, r, _) = crypto_service.generate_jwt(&Uuid::new_v4()).await.unwrap();
     let verify = crypto_service.verify_jwt(a.as_str()).await.is_ok();
     assert!(verify);
     let verify = crypto_service.verify_jwt(r.as_str()).await.is_ok();
