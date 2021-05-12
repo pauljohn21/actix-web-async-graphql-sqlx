@@ -1,7 +1,7 @@
 use async_graphql::*;
 use validator::Validate;
 
-use crate::domain::users::{TestValidator, Users};
+use crate::domain::users::{TestValidator, Users, UsersToken};
 use crate::service::users::{ExtUsersService, UsersService};
 use crate::web::gql::GraphqlResult;
 use crate::State;
@@ -29,7 +29,7 @@ impl PingQuery {
 #[Object]
 impl UsersQuery {
     /// 用户登录
-    async fn user_sign_in(&self, ctx: &Context<'_>, vm: LoginVM) -> GraphqlResult<String> {
+    async fn user_sign_in(&self, ctx: &Context<'_>, vm: LoginVM) -> GraphqlResult<UsersToken> {
         // 参数校验
         vm.validate()
             .map_err(AppError::RequestParameterError.validation_extend())?;
@@ -73,7 +73,15 @@ impl UsersQuery {
         // todo!("生成jsonwebtoken并返回");
         // todo 代码抽到 service 层去 这一次进做参数校验
 
-        Ok("生成jsonwebtoken并返回".to_string())
+        let (access_token, refash_token, expires) = crypto.generate_jwt(&users.id).await?;
+
+        let users_token = UsersToken {
+            access_token,
+            refash_token,
+            expires: expires.num_seconds(),
+        };
+
+        Ok(users_token)
     }
 
     /// 根据用户名查询用户

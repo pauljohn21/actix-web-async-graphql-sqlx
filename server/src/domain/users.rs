@@ -68,3 +68,11 @@ pub struct TestValidator {
     #[graphql(validator(Email))]
     pub email: String,
 }
+
+/// 用户登录token结构体
+#[derive(SimpleObject)]
+pub struct UsersToken {
+    pub access_token: String,
+    pub refash_token: String,
+    pub expires: i64,
+}
