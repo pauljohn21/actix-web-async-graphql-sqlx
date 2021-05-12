@@ -40,7 +40,7 @@ pub struct Configs {
 
 impl Configs {
     /// 初始化配置文件
-    pub fn init_config() -> anyhow::Result<Configs> {
+    pub fn init_config() -> anyhow::Result<Arc<Configs>> {
         // 加载环境变量
         dotenv::dotenv().ok();
 
@@ -68,7 +68,7 @@ impl Configs {
         // 将读取的配置文件转换为配置文件结构体
         let config = settings.try_into().context("配置文件转换错误!")?;
 
-        Ok(config)
+        Ok(Arc::new(config))
     }
 }
 
