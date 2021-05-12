@@ -2,7 +2,6 @@ use async_graphql::*;
 use validator::*;
 
 use crate::domain::users::Users;
-use crate::security::crypto::ExtCryptoService;
 use crate::service::users::{ExtUsersService, UsersService};
 use crate::web::gql::GraphqlResult;
 use crate::{common::error::errors::AppError, domain::users::NewUser, State};

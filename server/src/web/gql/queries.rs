@@ -1,14 +1,11 @@
 use async_graphql::*;
 use validator::Validate;
 
+use crate::domain::users::{TestValidator, Users};
 use crate::service::users::{ExtUsersService, UsersService};
 use crate::web::gql::GraphqlResult;
 use crate::State;
 use crate::{common::error::errors::AppError, domain::users::LoginVM, EMAIL_REGEX};
-use crate::{
-    domain::users::{TestValidator, Users},
-    security::crypto::ExtCryptoService,
-};
 
 /// 定义查询根节点
 #[derive(MergedObject, Default)]
